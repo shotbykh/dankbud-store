@@ -14,7 +14,7 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const allOrders = getOrders();
+    const allOrders = await getOrders();
     // Filter for this user's orders only and sort by newest
     const myOrders = allOrders.filter(o => o.memberId === memberId).reverse();
 

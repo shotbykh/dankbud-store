@@ -4,9 +4,9 @@ import Link from "next/link";
 // Force fresh data
 export const dynamic = "force-dynamic";
 
-export default function AdminOrdersPage() {
+export default async function AdminOrdersPage() {
   // Directly fetch from DB (Server Component)
-  const orders = getOrders().reverse(); 
+  const orders = (await getOrders()).reverse(); 
 
   return (
     <main className="min-h-screen bg-black text-[#facc15] font-mono p-8">
