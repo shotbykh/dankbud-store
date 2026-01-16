@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { parseSAID } from "@/lib/utils";
 import { saveMember } from "@/lib/db";
-import { v4 as uuidv4 } from "uuid";
 
 // Simple UUID polyfill if needed, or just use random string
 function generateId() {

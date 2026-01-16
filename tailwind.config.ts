@@ -1,6 +1,6 @@
-import type { Config } from "next";
+import type { Config } from "tailwindcss";
 
-export default {
+const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,19 +8,17 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        acid: {
-             yellow: "#facc15",
-             black: "#000000",
-        }
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "gradient-conic":
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       fontFamily: {
-        sans: ["var(--font-syne)", "sans-serif"],
-        archivo: ["var(--font-archivo)", "sans-serif"],
+        sans: ['var(--font-syne)', 'sans-serif'],
+        display: ['var(--font-archivo)', 'sans-serif'],
       },
     },
   },
   plugins: [],
-} satisfies Config;
+};
+export default config;

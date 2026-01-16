@@ -31,6 +31,7 @@ export interface Order {
   };
   createdAt: string;
   paymentMethod: 'EFT' | 'CASH';
+  deliveryMethod: 'DELIVERY' | 'COLLECTION';
 }
 
 interface Database {
