@@ -25,10 +25,16 @@ function SuccessContent() {
                 <p className="font-bold uppercase underline mb-2">Payment Required (EFT):</p>
                 <div className="grid grid-cols-[100px_1fr] gap-1 text-sm">
                     <span className="text-gray-500">Bank:</span>
-                    <span className="font-bold">FNB</span>
+                    <span className="font-bold">FNB/RMB</span>
                     
                     <span className="text-gray-500">Account:</span>
-                    <span className="font-bold">62045678901</span>
+                    <span className="font-bold">62762988346 (Cheque)</span>
+
+                    <span className="text-gray-500">Name:</span>
+                    <span className="font-bold">Gess L Du Preez</span>
+                    
+                    <span className="text-gray-500">Branch:</span>
+                    <span className="font-bold">250655</span>
                     
                     <span className="text-gray-500">Ref:</span>
                     <span className="font-bold bg-black text-[#facc15] px-1">{orderId}</span>

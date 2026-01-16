@@ -75,6 +75,8 @@ export async function saveMember(member: Member) {
 }
 
 export async function saveOrder(order: Order) {
+  console.log("Saving Order for Member:", order.memberId);
+
   const { error } = await supabase.from('orders').insert({
       id: order.id,
       member_id: order.memberId,
@@ -88,8 +90,8 @@ export async function saveOrder(order: Order) {
   });
   
   if (error) {
-      console.error(error);
-      throw new Error("Failed to save order");
+      console.error("Supabase SaveOrder Error:", error);
+      throw new Error(error.message + " (Details: " + JSON.stringify(error) + ")");
   }
   return order;
 }

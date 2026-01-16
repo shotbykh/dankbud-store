@@ -20,8 +20,7 @@ export async function POST(req: Request) {
     const memberId = session?.value || headerAuth;
     
     if (!memberId) {
-        console.log("Auth Failed: No cookie or header");
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({ error: 'Unauthorized: Session missing' }, { status: 401 });
     }
 
     const { items, total, address, paymentMethod, deliveryMethod } = data;
@@ -47,8 +46,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, orderId: newOrder.id });
 
-  } catch (error) {
-    console.error('Order error:', error);
-    return NextResponse.json({ error: 'Failed to process order' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Order API Error:', error);
+    // Return exact error message for debugging
+    return NextResponse.json({ error: error.message || 'Failed to process order' }, { status: 500 });
   }
 }

@@ -38,6 +38,8 @@ export default function CheckoutPage() {
         if (stored) {
             const member = JSON.parse(stored);
             memberIdHeader = member.email || member.idNumber || '';
+            // NOTE: Ideally this should be member.id, but let's see what logging tells us
+             if (member.id) memberIdHeader = member.id;
         }
     } catch (e) { console.error("Auth check failed", e); }
 
@@ -232,19 +234,19 @@ export default function CheckoutPage() {
                                 <p className="font-bold uppercase mb-2 underline">Banking Details:</p>
                                 <div className="grid grid-cols-[100px_1fr] gap-1">
                                     <span className="text-gray-500">Bank:</span>
-                                    <span className="font-bold">FNB</span>
+                                    <span className="font-bold">FNB/RMB</span>
                                     
                                     <span className="text-gray-500">Account:</span>
-                                    <span className="font-bold">62045678901</span>
+                                    <span className="font-bold">62762988346 (Cheque)</span>
                                     
                                     <span className="text-gray-500">Name:</span>
-                                    <span className="font-bold">DankBud Club</span>
+                                    <span className="font-bold">Gess L Du Preez</span>
                                     
                                     <span className="text-gray-500">Branch:</span>
                                     <span className="font-bold">250655</span>
                                     
                                     <span className="text-gray-500">Ref:</span>
-                                    <span className="font-bold bg-[#facc15] px-1">YOUR NAME</span>
+                                    <span className="font-bold bg-[#facc15] px-1">Order # (Shown Next)</span>
                                 </div>
                                 <p className="mt-2 text-xs text-gray-500">* Please send proof of payment to confirm order.</p>
                              </div>
