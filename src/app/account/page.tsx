@@ -22,8 +22,17 @@ export default function AccountPage() {
             let headers: any = {};
             const stored = localStorage.getItem('dankbud-session');
             if (stored) {
-                const member = JSON.parse(stored);
-                headers['x-member-id'] = member.email || member.idNumber || '';
+                try {
+                    const member = JSON.parse(stored);
+                    
+                    // CRITICAL FIX: Prioritize UUID (member.id) because that is what Orders are linked to.
+                    // Fallback to email/idNumber only for legacy support (though likely won't work for new orders).
+                    headers['x-member-id'] = member.id || member.email || member.idNumber || '';
+                    
+                    console.log("Account Page: Fetching orders for member:", headers['x-member-id']);
+                } catch (e) {
+                    console.error("Failed to parse session", e);
+                }
             }
 
             try {
