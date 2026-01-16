@@ -8,7 +8,8 @@
       "idNumber": "8702155116083",
       "status": "APPROVED",
       "joinedAt": "2026-01-15T19:46:10.738Z",
-      "totalSpent": 0
+      "totalSpent": 0,
+      "password": "password123"
     },
     {
       "id": "zhyzsj7q15jmvroh7f5lw8",
