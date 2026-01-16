@@ -1,25 +1,17 @@
 import { notFound } from "next/navigation";
 import ProductDetailClient from "@/components/shop/ProductDetailClient";
-import { getProducts, getProductById } from "@/lib/products";
-import { getProductStock } from "@/lib/inventory";
+import { getProductById } from "@/lib/products";
 
-// Server Component
-export async function generateStaticParams() {
-  const products = getProducts();
-  return products.map((product) => ({
-    id: product.id,
-  }));
-}
+// Force dynamic fetch to ensure fresh stock data
+export const dynamic = 'force-dynamic';
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = getProductById(id);
-  const stock = await getProductStock(id); // Fetch Stock
+  const product = await getProductById(id);
 
   if (!product) {
     notFound();
   }
 
-  // Pass stock to client
-  return <ProductDetailClient product={product} initialStock={stock} />;
+  return <ProductDetailClient product={product} initialStock={product.stock} />;
 }

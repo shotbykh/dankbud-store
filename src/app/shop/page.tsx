@@ -5,10 +5,14 @@ import CartIndicator from "@/components/cart/CartIndicator";
 import LogoutButton from "@/components/shop/LogoutButton";
 import ProductImage from "@/components/shop/ProductImage";
 
-// Server Component with Inventory Fetch
+// Force dynamic because we are fetching from DB now
+export const dynamic = 'force-dynamic';
+
 export default async function ShopPage() {
-  const products = getProducts();
-  const inventory = await getInventory();
+  const products = await getProducts();
+  // Inventory is already inside products now, but we can keep using fetching strictly if needed. 
+  // Actually, products[] has .stock on it now! 
+  // Let's rely on product.stock directly.
 
   return (
     <main className="min-h-screen bg-[#facc15] text-black relative">
@@ -21,7 +25,7 @@ export default async function ShopPage() {
             </Link>
             <span className="hidden md:inline opacity-30">|</span>
             <span className="hidden md:inline font-bold uppercase tracking-widest text-sm">
-                Catalog v1.0
+                Catalog v2.0 (Live DB)
             </span>
         </div>
         <div className="font-bold uppercase tracking-widest text-sm flex gap-4 items-center">
@@ -37,7 +41,7 @@ export default async function ShopPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product) => {
-                const stock = inventory[product.id] ?? 0;
+                const stock = product.stock ?? 0;
                 const isSoldOut = stock <= 0;
 
                 return (
@@ -73,7 +77,7 @@ export default async function ShopPage() {
                         </div>
                         
                          <div className="flex gap-2 mb-6 flex-wrap">
-                            {product.effects.slice(0, 3).map((effect, i) => (
+                            {product.effects && product.effects.slice(0, 3).map((effect, i) => (
                                 <span key={i} className="text-xs font-bold uppercase border border-current px-2 py-1">
                                     {effect}
                                 </span>

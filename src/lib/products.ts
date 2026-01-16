@@ -1,31 +1,59 @@
-import fs from 'fs';
-import path from 'path';
-
-const PRODUCTS_FILE = path.join(process.cwd(), 'data/products.json');
+import { supabase } from './supabase';
 
 export interface Product {
   id: string;
   name: string;
   category: string;
   price: number;
+  stock: number; // merged from inventory
   thc: string;
   lineage: string;
   description: string;
   effects: string[];
-  image: string; // CSS class for now, would be URL in real app
+  image: string;
 }
 
-export function getProducts(): Product[] {
-  try {
-    const data = fs.readFileSync(PRODUCTS_FILE, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error("Failed to read products DB", error);
+// Fetch all products + stock
+export async function getProducts(): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Supabase Products Error:", error);
     return [];
   }
+
+  return data.map((d: any) => ({
+      ...d,
+      // Ensure we handle arrays correctly (Supabase returns arrays as is)
+      effects: d.effects || []
+  }));
 }
 
-export function getProductById(id: string): Product | undefined {
-  const products = getProducts();
-  return products.find(p => p.id === id);
+// Fetch single product
+export async function getProductById(id: string): Promise<Product | undefined> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error || !data) return undefined;
+
+  return {
+      ...data,
+      effects: data.effects || []
+  };
+}
+
+// Update Stock
+export async function updateProductStock(id: string, newStock: number) {
+    const { error } = await supabase
+        .from('products')
+        .update({ stock: newStock })
+        .eq('id', id);
+        
+    if (error) throw new Error(error.message);
 }
