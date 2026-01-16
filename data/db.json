@@ -1,0 +1,379 @@
+{
+  "members": [
+    {
+      "id": "5msq1ywq48gvceob6i7pi",
+      "fullName": "gess du preez",
+      "email": "shotbykh@gmail.com",
+      "phone": "0737634350",
+      "idNumber": "8702155116083",
+      "status": "APPROVED",
+      "joinedAt": "2026-01-15T19:46:10.738Z",
+      "totalSpent": 0
+    },
+    {
+      "id": "zhyzsj7q15jmvroh7f5lw8",
+      "fullName": "test",
+      "email": "any@email.com",
+      "phone": "0737634350",
+      "idNumber": "9501015000087",
+      "status": "APPROVED",
+      "joinedAt": "2026-01-15T21:11:09.180Z",
+      "totalSpent": 0
+    },
+    {
+      "id": "u2oe7nfwk67u41hnya64c",
+      "email": "auth@test.com",
+      "phone": "0829998888",
+      "idNumber": "9001015009087",
+      "status": "APPROVED",
+      "joinedAt": "2026-01-16T12:24:32.418Z",
+      "totalSpent": 0,
+      "password": "password123"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ORD-904186",
+      "memberId": "shotbykh@gmail.com",
+      "items": [
+        {
+          "id": "sour-diesel",
+          "name": "Sour Diesel",
+          "category": "Frosty Hydro",
+          "price": 75,
+          "thc": "22%",
+          "lineage": "Sativa",
+          "description": "Fuel for the engine. Gas, loud, and uncompromising. The East Coast legend returns.",
+          "effects": [
+            "Energetic",
+            "Talkative",
+            "Creative"
+          ],
+          "image": "bg-green-700",
+          "quantity": 1
+        }
+      ],
+      "total": 75,
+      "status": "PENDING",
+      "deliveryMethod": "COLLECTION",
+      "paymentMethod": "EFT",
+      "createdAt": "2026-01-16T08:41:44.186Z"
+    },
+    {
+      "id": "ORD-978334",
+      "memberId": "shotbykh@gmail.com",
+      "items": [
+        {
+          "id": "white-russian",
+          "name": "White Russian",
+          "category": "AAA Indoor",
+          "price": 60,
+          "thc": "20%",
+          "lineage": "Hybrid",
+          "description": "Strong medicine. A creamy knockout punch from the 90s. While Widow x AK-47.",
+          "effects": [
+            "Strong",
+            "Relaxed",
+            "Long-lasting"
+          ],
+          "image": "bg-gray-100",
+          "quantity": 3
+        }
+      ],
+      "total": 180,
+      "status": "PENDING",
+      "address": {
+        "street": "12 Idylwylde Crescent",
+        "suburb": "Gqeberha",
+        "city": "Port Elizabeth",
+        "code": "6070",
+        "instructions": ""
+      },
+      "deliveryMethod": "DELIVERY",
+      "paymentMethod": "EFT",
+      "createdAt": "2026-01-16T08:42:58.334Z"
+    },
+    {
+      "id": "ORD-265747",
+      "memberId": "shotbykh@gmail.com",
+      "items": [
+        {
+          "id": "ice-cream-cake",
+          "name": "Ice Cream Cake",
+          "category": "AAA Greenhouse",
+          "price": 37,
+          "thc": "19%",
+          "lineage": "Indica",
+          "description": "Sugary frost for the soul. Creamy vanilla notes with a heavy body dispersion.",
+          "effects": [
+            "Sleepy",
+            "Relaxed",
+            "Happy"
+          ],
+          "image": "bg-pink-300",
+          "quantity": 1
+        },
+        {
+          "id": "blueberry-cupcake",
+          "name": "Blueberry Cupcake",
+          "category": "Frosty Hydro",
+          "price": 75,
+          "thc": "23%",
+          "lineage": "Hybrid",
+          "description": "Sweet, baked goodness. Dessert first. A frost-covered treat that smells exactly like its name.",
+          "effects": [
+            "Relaxed",
+            "Happy",
+            "Hungry"
+          ],
+          "image": "bg-blue-600",
+          "quantity": 1
+        },
+        {
+          "id": "sour-diesel",
+          "name": "Sour Diesel",
+          "category": "Frosty Hydro",
+          "price": 75,
+          "thc": "22%",
+          "lineage": "Sativa",
+          "description": "Fuel for the engine. Gas, loud, and uncompromising. The East Coast legend returns.",
+          "effects": [
+            "Energetic",
+            "Talkative",
+            "Creative"
+          ],
+          "image": "bg-green-700",
+          "quantity": 1
+        }
+      ],
+      "total": 187,
+      "status": "PENDING",
+      "address": {
+        "street": "12 Idylwylde Crescent",
+        "suburb": "Gqeberha",
+        "city": "Port Elizabeth",
+        "code": "6070",
+        "instructions": ""
+      },
+      "deliveryMethod": "DELIVERY",
+      "paymentMethod": "EFT",
+      "createdAt": "2026-01-16T08:47:45.747Z"
+    },
+    {
+      "id": "ORD-309670",
+      "memberId": "shotbykh@gmail.com",
+      "items": [
+        {
+          "id": "white-russian",
+          "name": "White Russian",
+          "category": "AAA Indoor",
+          "price": 60,
+          "thc": "20%",
+          "lineage": "Hybrid",
+          "description": "Strong medicine. A creamy knockout punch from the 90s. While Widow x AK-47.",
+          "effects": [
+            "Strong",
+            "Relaxed",
+            "Long-lasting"
+          ],
+          "image": "bg-gray-100",
+          "quantity": 3
+        }
+      ],
+      "total": 180,
+      "status": "PENDING",
+      "deliveryMethod": "COLLECTION",
+      "paymentMethod": "EFT",
+      "createdAt": "2026-01-16T08:48:29.670Z"
+    },
+    {
+      "id": "ORD-716632",
+      "memberId": "shotbykh@gmail.com",
+      "items": [
+        {
+          "id": "white-russian",
+          "name": "White Russian",
+          "category": "AAA Indoor",
+          "price": 60,
+          "thc": "20%",
+          "lineage": "Hybrid",
+          "description": "Strong medicine. A creamy knockout punch from the 90s. While Widow x AK-47.",
+          "effects": [
+            "Strong",
+            "Relaxed",
+            "Long-lasting"
+          ],
+          "image": "bg-gray-100",
+          "quantity": 3
+        }
+      ],
+      "total": 180,
+      "status": "DISPATCHED",
+      "deliveryMethod": "COLLECTION",
+      "paymentMethod": "CASH",
+      "createdAt": "2026-01-16T08:55:16.632Z"
+    },
+    {
+      "id": "ORD-623019",
+      "memberId": "shotbykh@gmail.com",
+      "items": [
+        {
+          "id": "peanut-butter",
+          "name": "Peanut Butter",
+          "category": "AAA Indoor",
+          "price": 60,
+          "thc": "21%",
+          "lineage": "Indica Dominant",
+          "description": "Nutty, earthy, smooth. Sticks to the roof of your mind. Deep relaxation pending.",
+          "effects": [
+            "Sedated",
+            "Giggly",
+            "Relaxed"
+          ],
+          "image": "bg-yellow-700",
+          "quantity": 1
+        }
+      ],
+      "total": 60,
+      "status": "DISPATCHED",
+      "deliveryMethod": "COLLECTION",
+      "paymentMethod": "EFT",
+      "createdAt": "2026-01-16T09:10:23.019Z"
+    },
+    {
+      "id": "ORD-516083",
+      "memberId": "shotbykh@gmail.com",
+      "items": [
+        {
+          "id": "cheese",
+          "name": "Cheese",
+          "category": "AAA Greenhouse",
+          "price": 35,
+          "thc": "18%",
+          "lineage": "Hybrid",
+          "description": "Old school funk. Deeply savory and relaxing. The classic master.",
+          "effects": [
+            "Relaxed",
+            "Happy",
+            "Hungry"
+          ],
+          "image": "bg-yellow-400",
+          "quantity": 1
+        }
+      ],
+      "total": 35,
+      "status": "PENDING",
+      "deliveryMethod": "COLLECTION",
+      "paymentMethod": "EFT",
+      "createdAt": "2026-01-16T09:25:16.083Z"
+    },
+    {
+      "id": "ORD-586219",
+      "memberId": "shotbykh@gmail.com",
+      "items": [
+        {
+          "id": "cheese",
+          "name": "Cheese",
+          "category": "AAA Greenhouse",
+          "price": 35,
+          "thc": "18%",
+          "lineage": "Hybrid",
+          "description": "Old school funk. Deeply savory and relaxing. The classic master.",
+          "effects": [
+            "Relaxed",
+            "Happy",
+            "Hungry"
+          ],
+          "image": "bg-yellow-400",
+          "quantity": 1
+        }
+      ],
+      "total": 35,
+      "status": "PENDING",
+      "deliveryMethod": "COLLECTION",
+      "paymentMethod": "EFT",
+      "createdAt": "2026-01-16T09:26:26.219Z"
+    },
+    {
+      "id": "ORD-249701",
+      "memberId": "shotbykh@gmail.com",
+      "items": [
+        {
+          "id": "cheese",
+          "name": "Cheese",
+          "category": "AAA Greenhouse",
+          "price": 35,
+          "thc": "18%",
+          "lineage": "Hybrid",
+          "description": "Old school funk. Deeply savory and relaxing. The classic master.",
+          "effects": [
+            "Relaxed",
+            "Happy",
+            "Hungry"
+          ],
+          "image": "bg-yellow-400",
+          "quantity": 1
+        }
+      ],
+      "total": 35,
+      "status": "PENDING",
+      "deliveryMethod": "COLLECTION",
+      "paymentMethod": "CASH",
+      "createdAt": "2026-01-16T09:37:29.701Z"
+    },
+    {
+      "id": "ORD-440063",
+      "memberId": "shotbykh@gmail.com",
+      "items": [
+        {
+          "id": "sour-diesel",
+          "name": "Sour Diesel",
+          "category": "Frosty Hydro",
+          "price": 75,
+          "thc": "22%",
+          "lineage": "Sativa",
+          "description": "Fuel for the engine. Gas, loud, and uncompromising. The East Coast legend returns.",
+          "effects": [
+            "Energetic",
+            "Talkative",
+            "Creative"
+          ],
+          "image": "bg-green-700",
+          "quantity": 3
+        }
+      ],
+      "total": 225,
+      "status": "PENDING",
+      "deliveryMethod": "COLLECTION",
+      "paymentMethod": "EFT",
+      "createdAt": "2026-01-16T09:40:40.063Z"
+    },
+    {
+      "id": "ORD-690708",
+      "memberId": "shotbykh@gmail.com",
+      "items": [
+        {
+          "id": "sour-diesel",
+          "name": "Sour Diesel",
+          "category": "Frosty Hydro",
+          "price": 75,
+          "thc": "22%",
+          "lineage": "Sativa",
+          "description": "Fuel for the engine. Gas, loud, and uncompromising. The East Coast legend returns.",
+          "effects": [
+            "Energetic",
+            "Talkative",
+            "Creative"
+          ],
+          "image": "bg-green-700",
+          "quantity": 4
+        }
+      ],
+      "total": 300,
+      "status": "DISPATCHED",
+      "deliveryMethod": "COLLECTION",
+      "paymentMethod": "EFT",
+      "createdAt": "2026-01-16T12:48:10.708Z"
+    }
+  ]
+}
