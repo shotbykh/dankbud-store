@@ -1,18 +1,14 @@
-import { getInventory } from "@/lib/inventory";
 import { getProducts } from "@/lib/products";
 import Link from "next/link";
 import InventoryForm from "@/components/admin/InventoryForm"; // Client Component for actions
 
 // Server Component
-export default async function AdminInventoryPage() {
-  const products = getProducts();
-  const inventory = await getInventory();
+// Force dynamic because we fetch live stock
+export const dynamic = 'force-dynamic';
 
-  // Combine data
-  const stockData = products.map(p => ({
-    ...p,
-    stock: inventory[p.id] || 0
-  }));
+export default async function AdminInventoryPage() {
+  const products = await getProducts();
+  // No need to merge inventory, products already have .stock
 
   return (
     <main className="min-h-screen bg-black text-[#facc15] font-mono p-8">
@@ -29,7 +25,7 @@ export default async function AdminInventoryPage() {
       </header>
 
       <div className="max-w-4xl mx-auto">
-        <InventoryForm products={stockData} />
+        <InventoryForm products={products} />
       </div>
     </main>
   );
