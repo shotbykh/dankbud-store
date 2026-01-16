@@ -10,7 +10,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: "Missing credentials." }, { status: 400 });
     }
 
-    const members = getMembers();
+    const members = await getMembers();
     
     // Find member by Email OR ID Number
     const member = members.find(m => 

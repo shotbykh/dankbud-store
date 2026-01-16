@@ -1,10 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-// These will be loaded from .env.local or Vercel Environment Variables
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!; // Use Service Role for Admin/Backend logic
+// REAL PROD KEYS (Replace these with ENV variables later if you want to be "Proper")
+const SUPABASE_URL = 'https://zubysbsgvfxwtjlfrscw.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Z_f54-dFbZYHB0S2EecK7g_iuFwRbz8'; // This is public, so it is safe-ish
 
-// Only create the client if keys exist (Safe fallback)
-export const supabase = (supabaseUrl && supabaseKey) 
-  ? createClient(supabaseUrl, supabaseKey) 
-  : null;
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);

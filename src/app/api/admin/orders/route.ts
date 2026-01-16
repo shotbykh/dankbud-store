@@ -1,36 +1,29 @@
 import { NextResponse } from 'next/server';
-import { getOrders, saveOrder, Order } from '@/lib/db';
-import fs from 'fs';
-import path from 'path';
+import { getOrders, Order } from '@/lib/db';
+import { supabase } from '@/lib/supabase'; // Direct access for update
 
 // Force dynamic to prevent caching
 export const dynamic = 'force-dynamic';
 
-function updateOrderStatus(orderId: string, status: Order['status']) {
-    const DB_PATH = path.join(process.cwd(), 'data', 'db.json');
-    try {
-        const fileData = fs.readFileSync(DB_PATH, 'utf-8');
-        const db = JSON.parse(fileData);
+async function updateOrderStatus(orderId: string, status: Order['status']) {
+    const { error } = await supabase
+        .from('orders')
+        .update({ status })
+        .eq('id', orderId);
         
-        if (!db.orders) return;
-
-        const updatedOrders = db.orders.map((o: Order) => 
-            o.id === orderId ? { ...o, status } : o
-        );
-
-        db.orders = updatedOrders;
-        fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
-    } catch (e) {
-        console.error("Failed to update status", e);
-        throw e;
+    if (error) {
+        console.error("Failed to update status", error);
+        throw new Error(error.message);
     }
 }
 
 export async function GET() {
     try {
         // Read fresh each time
-        const orders = getOrders().reverse(); 
-        return NextResponse.json({ orders });
+        const orders = await getOrders();
+        // Since we fetch from DB, we can sort here or in the DB query. 
+        // getOrders() already maps it, but let's reverse for recent first.
+        return NextResponse.json({ orders: orders.reverse() });
     } catch (e) {
         return NextResponse.json({ orders: [] });
     }
@@ -39,7 +32,7 @@ export async function GET() {
 export async function PUT(req: Request) {
     try {
         const { orderId, status } = await req.json();
-        updateOrderStatus(orderId, status);
+        await updateOrderStatus(orderId, status);
         return NextResponse.json({ success: true });
     } catch (e) {
         return NextResponse.json({ error: 'Failed' }, { status: 500 });

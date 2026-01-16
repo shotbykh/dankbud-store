@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         createdAt: new Date().toISOString(),
     };
 
-    saveOrder(newOrder);
+    await saveOrder(newOrder); // Async now!
     console.log("Order Saved:", newOrder.id);
 
     return NextResponse.json({ success: true, orderId: newOrder.id });

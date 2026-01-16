@@ -10,7 +10,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ success: false, message: "Missing fields" }, { status: 400 });
         }
 
-        const updated = updateMemberStatus(memberId, status);
+        const updated = await updateMemberStatus(memberId, status);
         return NextResponse.json({ success: true, member: updated });
     } catch (e) {
         console.error(e);

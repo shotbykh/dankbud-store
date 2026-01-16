@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     };
 
     try {
-        saveMember(newMember);
+        await saveMember(newMember);
     } catch (e) {
         return NextResponse.json({ success: false, message: "Member already exists." }, { status: 409 });
     }

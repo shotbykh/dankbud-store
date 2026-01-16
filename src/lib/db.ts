@@ -1,8 +1,4 @@
-import fs from 'fs';
-import path from 'path';
-
-const DB_PATH = path.join(process.cwd(), 'data');
-const DB_FILE = path.join(DB_PATH, 'db.json');
+import { supabase } from './supabase';
 
 export interface Member {
   id: string;
@@ -13,7 +9,7 @@ export interface Member {
   status: 'APPROVED' | 'REJECTED' | 'PENDING';
   joinedAt: string;
   totalSpent: number;
-  password?: string; // Optional for now
+  password?: string;
 }
 
 export interface Order {
@@ -34,67 +30,93 @@ export interface Order {
   deliveryMethod: 'DELIVERY' | 'COLLECTION';
 }
 
-interface Database {
-  members: Member[];
-  orders: Order[];
-}
+// --- SUPABASE API ---
 
-// Ensure DB directory exists
-if (!fs.existsSync(DB_PATH)) {
-  fs.mkdirSync(DB_PATH);
-}
-
-// Initialize DB file if not exists
-if (!fs.existsSync(DB_FILE)) {
-  fs.writeFileSync(DB_FILE, JSON.stringify({ members: [], orders: [] }, null, 2));
-}
-
-// Helper to read full DB safely
-function readDb(): Database {
-    try {
-        const data = fs.readFileSync(DB_FILE, 'utf-8');
-        const db = JSON.parse(data);
-        if (!db.orders) db.orders = []; // Migration for existing file
-        return db;
-    } catch (e) {
-        return { members: [], orders: [] };
-    }
-}
-
-export function getMembers(): Member[] {
-  return readDb().members;
-}
-
-export function saveMember(member: Member) {
-  const db = readDb();
-  // Check duplicates via ID Number or Email
-  const existing = db.members.find(m => m.idNumber === member.idNumber || m.email === member.email);
-  if (existing) {
-    throw new Error("Member already exists");
+export async function getMembers(): Promise<Member[]> {
+  const { data, error } = await supabase.from('members').select('*');
+  if (error) {
+      console.error("Supabase Error:", error);
+      return [];
   }
-  
-  db.members.push(member);
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+  // Map snake_case database to camelCase app
+  return data.map((d: any) => ({
+      ...d,
+      fullName: d.full_name,
+      idNumber: d.id_number,
+      joinedAt: d.joined_at,
+      totalSpent: d.total_spent
+  }));
+}
+
+export async function saveMember(member: Member) {
+  // Check duplicates
+  const { data: existing } = await supabase
+      .from('members')
+      .select('id')
+      .or(`email.eq.${member.email},id_number.eq.${member.idNumber}`)
+      .single();
+      
+  if (existing) throw new Error("Member already exists");
+
+  const { error } = await supabase.from('members').insert({
+      id: member.id,
+      full_name: member.fullName,
+      email: member.email,
+      phone: member.phone,
+      id_number: member.idNumber,
+      status: member.status,
+      joined_at: member.joinedAt,
+      total_spent: member.totalSpent,
+      password: member.password
+  });
+
+  if (error) throw new Error(error.message);
   return member;
 }
 
-export function saveOrder(order: Order) {
-    const db = readDb();
-    db.orders.push(order);
-    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
-    return order;
+export async function saveOrder(order: Order) {
+  const { error } = await supabase.from('orders').insert({
+      id: order.id,
+      member_id: order.memberId,
+      items: order.items,
+      total: order.total,
+      status: order.status,
+      payment_method: order.paymentMethod,
+      delivery_method: order.deliveryMethod,
+      address: order.address, // stored as jsonb
+      created_at: order.createdAt
+  });
+  
+  if (error) {
+      console.error(error);
+      throw new Error("Failed to save order");
+  }
+  return order;
 }
 
-export function getOrders(): Order[] {
-    return readDb().orders;
-}
-
-export function updateMemberStatus(id: string, status: Member['status']) {
-    const db = readDb();
-    const index = db.members.findIndex(m => m.id === id);
-    if (index === -1) throw new Error("Member not found");
+export async function getOrders(): Promise<Order[]> {
+    const { data, error } = await supabase.from('orders').select('*');
+    if (error) return [];
     
-    db.members[index].status = status;
-    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
-    return db.members[index];
+    return data.map((d: any) => ({
+        id: d.id,
+        memberId: d.member_id,
+        items: d.items,
+        total: d.total,
+        status: d.status,
+        address: d.address,
+        createdAt: d.created_at,
+        paymentMethod: d.payment_method,
+        deliveryMethod: d.delivery_method
+    }));
+}
+
+export async function updateMemberStatus(id: string, status: Member['status']) {
+    const { error } = await supabase
+        .from('members')
+        .update({ status })
+        .eq('id', id);
+        
+    if (error) throw new Error(error.message);
+    return { id, status };
 }
