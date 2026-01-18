@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { parseSAID } from "@/lib/utils";
 import { saveMember } from "@/lib/db";
+import { sendStaffNotification } from '@/lib/email';
 
 // Simple UUID polyfill if needed, or just use random string
 function generateId() {
@@ -66,9 +67,18 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: "Member already exists." }, { status: 409 });
     }
 
-    console.log('[EMAIL SENT] To: ' + email + ' | Access Granted');
+    // 3. Send Notification - WITH DIAGNOSTIC RETURN
+    const emailResult = await sendStaffNotification(
+        `New Member Joined: ${fullName}`,
+        `<h1>New Member Alert 🚨</h1>
+        <p><strong>Name:</strong> ${fullName}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>ID:</strong> ${idNumber} (${idType || 'SA ID'})</p>
+        <p><strong>Status:</strong> APPROVED</p>`
+    );
 
-    return NextResponse.json({ success: true, member: newMember });
+    return NextResponse.json({ success: true, member: newMember, emailResult });
 
   } catch (error) {
     console.error(error);
