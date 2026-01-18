@@ -82,10 +82,7 @@ export default function ApplyPage() {
                     <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-[0.9]">
                         Join The <br/> Club
                     </h1>
-                    <p className="font-bold uppercase tracking-widest text-black/70">
-                        Instant Approval • Wholesale Prices
-                    </p>
-                    {/* ERROR MESSAGE DISPLAY */}
+                    {/* Removed Wholesale Pricing Text */}
                     {serverError && (
                         <div className="bg-red-500 text-white font-bold p-4 uppercase border-2 border-black animate-pulse">
                             ⚠️ {serverError}
