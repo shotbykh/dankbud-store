@@ -20,9 +20,10 @@ export default function Home() {
       {/* HERO SECTION */}
       <div className="min-h-screen w-full relative flex flex-col items-center justify-center p-8 md:p-12">
         
-        {/* TEXT HERO - RESPONSIVE (11vw fits 7 chars nicely) */}
+        {/* TEXT HERO - FLUID TYPOGRAPHY */}
+        {/* Changed md:text-[14rem] to xl:text-[400px] or just kept it purely fluid to ensure it ALWAYS fits */}
         <div className="relative z-10 w-full flex flex-col items-center justify-center select-none mix-blend-normal py-10">
-            <h1 className="font-archivo text-[11vw] md:text-[14rem] font-black uppercase tracking-tighter text-black leading-none whitespace-nowrap transform scale-y-[1.1] origin-center -mb-4 md:-mb-10">
+            <h1 className="font-archivo font-black uppercase tracking-tighter text-black leading-none whitespace-nowrap transform scale-y-[1.1] origin-center -mb-4 md:-mb-8 text-[13vw]">
                 DANKBUD
             </h1>
         </div>
