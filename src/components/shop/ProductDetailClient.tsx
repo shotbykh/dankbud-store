@@ -66,11 +66,15 @@ export default function ProductDetailClient({ product, initialStock = 0 }: { pro
                 </div>
                 
                 {/* 
-                  UPDATED TYPOGRAPHY V6:
-                  Switched to static responsive sizes (text-5xl) instead of fluid vw to guarantee safety.
-                  Removed 'scale-y' to prevent distortion/width issues.
+                  UPDATED TYPOGRAPHY V7:
+                  Aggressive resizing for tablet split-view.
+                  Mobile: text-5xl
+                  Tablet (md): text-3xl (CRITICAL FIX: Was text-4xl/7xl before, caused break)
+                  Desktop (lg): text-5xl
+                  XL: text-6xl
+                  Removed break-words to defaults to normal wrapping (whole words only).
                 */}
-                <h1 className="font-archivo font-extrabold uppercase tracking-tight leading-[0.9] mb-6 origin-left max-w-full text-5xl md:text-7xl lg:text-8xl break-words">
+                <h1 className="font-archivo font-extrabold uppercase tracking-tight leading-[0.9] mb-6 origin-left max-w-full text-5xl md:text-3xl lg:text-5xl xl:text-6xl">
                     {product.name}
                 </h1>
                 
