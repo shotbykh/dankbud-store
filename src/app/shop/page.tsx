@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getProducts } from "@/lib/products";
-import { getInventory } from "@/lib/inventory";
 import CartIndicator from "@/components/cart/CartIndicator";
 import LogoutButton from "@/components/shop/LogoutButton";
 import ProductImage from "@/components/shop/ProductImage";
@@ -10,9 +9,6 @@ export const dynamic = 'force-dynamic';
 
 export default async function ShopPage() {
   const products = await getProducts();
-  // Inventory is already inside products now, but we can keep using fetching strictly if needed. 
-  // Actually, products[] has .stock on it now! 
-  // Let's rely on product.stock directly.
 
   return (
     <main className="min-h-screen bg-[#facc15] text-black relative">
@@ -35,7 +31,12 @@ export default async function ShopPage() {
       </nav>
 
       <div className="pt-32 pb-20 px-6 md:px-12 max-w-7xl mx-auto relative z-10">
-        <h1 className="font-archivo text-[20vw] md:text-[14rem] font-extrabold uppercase tracking-tight leading-[0.8] mb-16 mix-blend-darken transform scale-y-[1.3] origin-left -ml-2 select-none">
+        {/* 
+            FLUID TYPOGRAPHY FIX V2:
+            Reduced to 15vw to be safe on all screens.
+            Added break-words and hyphens-auto.
+        */}
+        <h1 className="font-archivo text-[15vw] font-extrabold uppercase tracking-tight leading-[0.8] mb-16 mix-blend-darken transform scale-y-[1.3] origin-left -ml-2 select-none break-words hyphens-auto">
             Fresh<br/>Drops
         </h1>
 
@@ -72,8 +73,9 @@ export default async function ShopPage() {
                         </div>
 
                         <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-4xl font-archivo font-bold uppercase leading-none tracking-tight transform scale-y-110 origin-left">{product.name}</h3>
-                            <div className="text-2xl font-black">R{product.price}</div>
+                            {/* Card Title Fix: break-words and hyphens logic */}
+                            <h3 className="text-4xl font-archivo font-bold uppercase leading-none tracking-tight transform scale-y-110 origin-left break-words hyphens-auto pr-2">{product.name}</h3>
+                            <div className="text-2xl font-black shrink-0">R{product.price}</div>
                         </div>
                         
                          <div className="flex gap-2 mb-6 flex-wrap">

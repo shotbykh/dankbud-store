@@ -21,10 +21,10 @@ export default function ProductDetailClient({ product, initialStock = 0 }: { pro
     <main className="min-h-screen bg-[#facc15] text-black">
       {/* NAV */}
       <nav className="fixed top-0 w-full z-50 flex justify-between items-center p-4 md:p-8 bg-[#facc15]/90 backdrop-blur border-b-4 border-black">
-        <Link href="/shop" className="text-xl md:text-2xl font-black uppercase tracking-tighter hover:underline decoration-4">
+        <Link href="/shop" className="text-lg md:text-2xl font-black uppercase tracking-tighter hover:underline decoration-4 truncate max-w-[60%]">
             ← Back to Catalog
         </Link>
-        <div className="font-bold uppercase tracking-widest text-sm flex gap-4 items-center">
+        <div className="font-bold uppercase tracking-widest text-sm flex gap-4 items-center shrink-0">
             <CartIndicator />
             <LogoutButton />
         </div>
@@ -66,16 +66,12 @@ export default function ProductDetailClient({ product, initialStock = 0 }: { pro
                 </div>
                 
                 {/* 
-                  UPDATED TYPOGRAPHY:
-                  Removed 'break-words' to prevent "BLUEBERR-Y".
-                  Added 'max-w-full' to ensure container constraints.
-                  Increased font size slightly for very long names but relied on natural wrapping.
+                  UPDATED TYPOGRAPHY: 
+                  Using fluid viewport units (13vw) to guarantee it fits on screen width, 
+                  clamped to a reasonable max size for desktop.
+                  Added break-words as fallback.
                 */}
-                <h1 className={`font-archivo font-extrabold uppercase tracking-tight leading-[0.85] mb-6 transform scale-y-110 origin-left max-w-full ${
-                    product.name.length > 20 ? 'text-7xl md:text-[5.5rem]' : 
-                    product.name.length > 10 ? 'text-7xl md:text-[6.5rem]' : 
-                    'text-8xl md:text-[8rem]'
-                }`}>
+                <h1 className="font-archivo font-extrabold uppercase tracking-tight leading-[0.85] mb-6 transform scale-y-110 origin-left max-w-full text-[13vw] md:text-[6rem] lg:text-[7rem] break-words">
                     {product.name}
                 </h1>
                 
