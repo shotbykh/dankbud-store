@@ -11,7 +11,8 @@ interface CheckoutProps {
 
 export async function createYocoCheckout(props: CheckoutProps) {
   try {
-    const response = await fetch('https://online.yoco.com/v1/checkouts', {
+    // CORRECT ENDPOINT: Using payments.yoco.com for Hosted Checkout
+    const response = await fetch('https://payments.yoco.com/api/checkouts', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
