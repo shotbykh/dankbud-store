@@ -67,8 +67,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: "Member already exists." }, { status: 409 });
     }
 
-    // 3. Send Notification - WITH DIAGNOSTIC RETURN
-    const emailResult = await sendStaffNotification(
+    // 3. Send Notification
+    await sendStaffNotification(
         `New Member Joined: ${fullName}`,
         `<h1>New Member Alert 🚨</h1>
         <p><strong>Name:</strong> ${fullName}</p>
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
         <p><strong>Status:</strong> APPROVED</p>`
     );
 
-    return NextResponse.json({ success: true, member: newMember, emailResult });
+    return NextResponse.json({ success: true, member: newMember });
 
   } catch (error) {
     console.error(error);
