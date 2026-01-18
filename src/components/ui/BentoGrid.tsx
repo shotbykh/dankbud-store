@@ -62,6 +62,13 @@ const cards = [
 export default function BentoGrid() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  // Helper for dynamic text size based on card ID
+  const getCardTextClass = (id: string) => {
+      if (id === 'location') return "text-[clamp(3rem,8vw,5rem)] break-words";
+      if (id === 'vibe' || id === 'manifesto') return "text-[clamp(2rem,4vw,3.5rem)] max-w-lg"; // Fluid sizing
+      return "text-3xl md:text-5xl";
+  };
+
   return (
     <section className="relative z-10 py-20 px-4 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
@@ -77,7 +84,7 @@ export default function BentoGrid() {
                         >
                             <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8">
                                 <h3 className="text-xl font-black uppercase tracking-widest z-10 opacity-60">{card.title}</h3>
-                                <p className="font-black uppercase leading-none z-10 text-3xl md:text-4xl text-black group-hover:underline decoration-4 underline-offset-4">
+                                <p className="font-black uppercase leading-none z-10 text-[clamp(1.5rem,3vw,2.5rem)] text-black group-hover:underline decoration-4 underline-offset-4">
                                     {card.content}
                                 </p>
                             </div>
@@ -111,11 +118,7 @@ export default function BentoGrid() {
 
                     <motion.h3 className="text-xl md:text-2xl font-black uppercase tracking-widest z-10">{card.title}</motion.h3>
                     
-                    <motion.p className={`font-black uppercase leading-[0.85] z-10 whitespace-pre-line ${
-                        card.id === 'location' 
-                            ? 'text-5xl md:text-6xl break-words' 
-                            : 'text-3xl md:text-5xl max-w-lg'
-                    }`}>
+                    <motion.p className={`font-black uppercase leading-[0.85] z-10 whitespace-pre-line ${getCardTextClass(card.id)}`}>
                         {card.content}
                     </motion.p>
                     
