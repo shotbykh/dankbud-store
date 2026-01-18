@@ -13,10 +13,7 @@ export async function POST(req: Request) {
 
     // Amount needs to be in cents
     const amountInCents = Math.round(parseFloat(amount) * 100);
-
-    // Create description from cart items
-    // (Optional: Limit length to avoid errors)
-    const description = `Order #${orderId.slice(0,8)} - DankBud Club`;
+    console.log(`[Payment] Initiating Yoco Checkout: Order ${orderId}, Amount ${amountInCents} cents`);
 
     const checkout = await createYocoCheckout({
       amount: amountInCents,
@@ -31,8 +28,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ redirectUrl: checkout.redirectUrl });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Payment creation failed:', error);
-    return NextResponse.json({ error: 'Payment initialization failed' }, { status: 500 });
+    // Return the actual error message
+    return NextResponse.json({ error: error.message || 'Payment initialization failed' }, { status: 500 });
   }
 }

@@ -29,7 +29,7 @@ export async function createYocoCheckout(props: CheckoutProps) {
     if (!response.ok) {
         const errorBody = await response.text();
         console.error("Yoco API Error:", errorBody);
-        throw new Error(`Yoco API Failed: ${response.statusText}`);
+        throw new Error(`Yoco Error: ${errorBody}`);
     }
 
     const data = await response.json();
