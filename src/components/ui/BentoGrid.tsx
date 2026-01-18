@@ -95,7 +95,7 @@ export default function BentoGrid() {
                     key={card.id}
                     layoutId={card.id}
                     onClick={() => setSelectedId(card.id)}
-                    className={`${card.size} ${card.color} ${card.textColor} p-8 min-h-[300px] flex flex-col justify-between relative overflow-hidden group border-4 border-black cursor-pointer hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-shadow`}
+                    className={`${card.size} ${card.color} ${card.textColor} p-6 md:p-8 min-h-[220px] md:min-h-[300px] flex flex-col justify-between relative overflow-hidden group border-4 border-black cursor-pointer hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-shadow`}
                 >
                     {/* Abstract Art Overlays */}
                     {card.art === 'waving-lines' && (
@@ -109,12 +109,12 @@ export default function BentoGrid() {
                         />
                     )}
 
-                    <motion.h3 className="text-2xl font-black uppercase tracking-widest z-10">{card.title}</motion.h3>
+                    <motion.h3 className="text-xl md:text-2xl font-black uppercase tracking-widest z-10">{card.title}</motion.h3>
                     
                     <motion.p className={`font-black uppercase leading-[0.85] z-10 whitespace-pre-line ${
                         card.id === 'location' 
-                            ? 'text-6xl break-words' 
-                            : 'text-4xl md:text-5xl max-w-lg'
+                            ? 'text-5xl md:text-6xl break-words' 
+                            : 'text-3xl md:text-5xl max-w-lg'
                     }`}>
                         {card.content}
                     </motion.p>

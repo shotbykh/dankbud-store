@@ -10,7 +10,8 @@ interface LiquidButtonProps {
 }
 
 export default function LiquidButton({ href, children, className = "", onClick }: LiquidButtonProps) {
-  const baseClasses = `group relative inline-flex items-center justify-center px-12 py-6 bg-transparent text-black text-3xl font-black uppercase tracking-widest border-4 border-black hover:text-[#facc15] transition-colors duration-300 ${className}`;
+  // PX-8 and Text-2xl on mobile, larger on desktop
+  const baseClasses = `group relative inline-flex items-center justify-center px-8 py-5 md:px-12 md:py-6 bg-transparent text-black text-2xl md:text-3xl font-black uppercase tracking-widest border-4 border-black hover:text-[#facc15] transition-colors duration-300 ${className}`;
   
   const inner = (
     <>
