@@ -26,6 +26,11 @@ export default function CheckoutPage() {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const handleFixSession = () => {
+    localStorage.removeItem('dankbud-session'); // Clear stale session
+    window.location.href = '/login';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -92,8 +97,10 @@ export default function CheckoutPage() {
             clearCart();
             router.push(`/checkout/success?orderId=${data.orderId}`);
         } else {
-             if (res.status === 401) {
-                 setError('Session expired. Please log in again to complete your order.');
+             // Handle Foreign Key / Stale Session Errors
+             const errorMsg = JSON.stringify(data);
+             if (res.status === 401 || errorMsg.includes('foreign key') || errorMsg.includes('constraint')) {
+                 setError('Session STALE. Please click "Fix Session" below.');
             } else {
                 setError(data.error || 'Something went wrong. Please try again.');
             }
@@ -136,7 +143,15 @@ export default function CheckoutPage() {
                     {error && (
                         <div className="bg-red-500 text-white p-4 font-bold border-2 border-black animate-pulse flex flex-col items-start gap-2">
                             <span>{error}</span>
-                            {error.includes('Session') && (
+                            
+                            {/* Auto-Fix Button for Stale Sessions */}
+                            {(error.includes('Session') || error.includes('STALE')) && (
+                                <button type="button" onClick={handleFixSession} className="underline bg-white text-red-500 px-4 py-2 uppercase text-sm font-black hover:bg-black hover:text-[#facc15] transition-colors">
+                                    🔄 Fix Session (Relogin) &rarr;
+                                </button>
+                            )}
+                            
+                            {!error.includes('Session') && !error.includes('STALE') && error.includes('Login') && (
                                 <Link href="/login" className="underline bg-white text-red-500 px-2 py-1 uppercase text-xs font-black">
                                     Login Now &rarr;
                                 </Link>
@@ -357,4 +372,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-// Forced Update Sun Jan 18 23:58:22 SAST 2026
