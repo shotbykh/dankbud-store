@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Basic SA ID Validation (Luhn algorithm check is ideal, but regex length is a good start)
+// Basic SA ID Validation
 const saIdRegex = /^\d{13}$/;
 
 // Base schema for common fields
@@ -11,8 +11,8 @@ const baseSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters."),
   confirmPassword: z.string().min(6, "Password must be at least 6 characters."),
   referralCode: z.string().optional(),
-  idType: z.enum(["SA_ID", "PASSPORT"]).default("SA_ID"),
-  dateOfBirth: z.string().optional(), // YYYY-MM-DD
+  idType: z.enum(["SA_ID", "PASSPORT"]), 
+  dateOfBirth: z.string().optional(), 
   idNumber: z.string(),
 });
 
