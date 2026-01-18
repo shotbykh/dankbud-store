@@ -19,7 +19,7 @@ export default function CheckoutPage() {
     instructions: ''
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<'EFT' | 'CASH'>('EFT');
+  const [paymentMethod, setPaymentMethod] = useState<'EFT' | 'CASH' | 'ONLINE'>('ONLINE');
   const [deliveryMethod, setDeliveryMethod] = useState<'DELIVERY' | 'COLLECTION'>('DELIVERY');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -38,7 +38,6 @@ export default function CheckoutPage() {
         if (stored) {
             const member = JSON.parse(stored);
             memberIdHeader = member.email || member.idNumber || '';
-            // NOTE: Ideally this should be member.id, but let's see what logging tells us
              if (member.id) memberIdHeader = member.id;
         }
     } catch (e) { console.error("Auth check failed", e); }
@@ -62,6 +61,34 @@ export default function CheckoutPage() {
         const data = await res.json();
 
         if (res.ok) {
+            // IF ONLINE PAYMENT -> Redirect to Yoco
+            if (paymentMethod === 'ONLINE') {
+                try {
+                    const payRes = await fetch('/api/payments/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            amount: total,
+                            orderId: data.orderId,
+                            cartItems: items
+                        })
+                    });
+                    const payData = await payRes.json();
+                    
+                    if (payData.redirectUrl) {
+                        clearCart(); 
+                        window.location.href = payData.redirectUrl;
+                        return;
+                    } else {
+                        throw new Error("Payment link generation failed");
+                    }
+                } catch (payErr) {
+                    setError("Payment Gateway Error. Please try again or choose EFT.");
+                    setLoading(false);
+                    return;
+                }
+            }
+
             clearCart();
             router.push(`/checkout/success?orderId=${data.orderId}`);
         } else {
@@ -70,11 +97,11 @@ export default function CheckoutPage() {
             } else {
                 setError(data.error || 'Something went wrong. Please try again.');
             }
+            setLoading(false);
         }
 
     } catch (err) {
         setError('Network error. Check your connection.');
-    } finally {
         setLoading(false);
     }
   };
@@ -97,6 +124,15 @@ export default function CheckoutPage() {
                 <h1 className="text-5xl font-archivo uppercase mb-8">Checkout</h1>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Payment Loading Overlay */}
+                    {loading && paymentMethod === 'ONLINE' && (
+                        <div className="fixed inset-0 z-50 bg-black/80 flex flex-col items-center justify-center text-[#facc15] backdrop-blur-sm">
+                            <div className="text-6xl animate-bounce mb-4">💳</div>
+                            <h2 className="text-4xl font-black uppercase text-center animate-pulse">Securing Link...</h2>
+                            <p className="font-mono mt-2">Connecting to Yoco Secure Gateway</p>
+                        </div>
+                    )}
+
                     {error && (
                         <div className="bg-red-500 text-white p-4 font-bold border-2 border-black animate-pulse flex flex-col items-start gap-2">
                             <span>{error}</span>
@@ -108,7 +144,7 @@ export default function CheckoutPage() {
                         </div>
                     )}
                     
-                    {/* Method Toggle - UPDATED LAYOUT */}
+                    {/* Method Toggle */}
                     <div className="grid grid-cols-2 gap-4 mb-8">
                         <button type="button" onClick={() => setDeliveryMethod('DELIVERY')} className={`p-4 border-4 border-black font-black uppercase text-xl transition-all flex flex-col items-center justify-center gap-2 ${deliveryMethod === 'DELIVERY' ? 'bg-black text-[#facc15]' : 'bg-white hover:bg-gray-100'}`}>
                             <span>DELIVERY</span>
@@ -200,7 +236,22 @@ export default function CheckoutPage() {
                     <div className="space-y-4 pt-6">
                         <h3 className="text-2xl font-black uppercase font-archivo border-b-2 border-black pb-2">Payment Method</h3>
                         
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                             {/* ONLINE */}
+                             <label className={`cursor-pointer border-4 border-black p-4 flex flex-col items-center justify-center transition-all ${paymentMethod === 'ONLINE' ? 'bg-black text-[#facc15] scale-105 shadow-xl' : 'bg-white hover:bg-gray-50'}`}>
+                                <input 
+                                    type="radio" 
+                                    name="payment" 
+                                    value="ONLINE" 
+                                    checked={paymentMethod === 'ONLINE'} 
+                                    onChange={() => setPaymentMethod('ONLINE')}
+                                    className="hidden" 
+                                />
+                                <span className="text-4xl mb-2 animate-pulse">💳</span>
+                                <span className="font-bold uppercase text-center text-sm">Pay Online</span>
+                                <span className="text-[10px] uppercase opacity-75 mt-1">(Apple Pay / Card)</span>
+                            </label>
+
                             <label className={`cursor-pointer border-4 border-black p-4 flex flex-col items-center justify-center transition-all ${paymentMethod === 'EFT' ? 'bg-black text-[#facc15]' : 'bg-white hover:bg-gray-50'}`}>
                                 <input 
                                     type="radio" 
@@ -211,7 +262,7 @@ export default function CheckoutPage() {
                                     className="hidden" 
                                 />
                                 <span className="text-3xl mb-2">💸</span>
-                                <span className="font-bold uppercase">EFT / GeoPay</span>
+                                <span className="font-bold uppercase text-center text-sm">EFT / GeoPay</span>
                             </label>
 
                             <label className={`cursor-pointer border-4 border-black p-4 flex flex-col items-center justify-center transition-all ${paymentMethod === 'CASH' ? 'bg-black text-[#facc15]' : 'bg-white hover:bg-gray-50'}`}>
@@ -224,7 +275,7 @@ export default function CheckoutPage() {
                                     className="hidden" 
                                 />
                                 <span className="text-3xl mb-2">💵</span>
-                                <span className="font-bold uppercase">Cash on Drop</span>
+                                <span className="font-bold uppercase text-center text-sm">Cash on Drop</span>
                             </label>
                         </div>
                         
@@ -306,3 +357,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+// Forced Update Sun Jan 18 23:58:22 SAST 2026
