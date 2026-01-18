@@ -66,12 +66,11 @@ export default function ProductDetailClient({ product, initialStock = 0 }: { pro
                 </div>
                 
                 {/* 
-                  UPDATED TYPOGRAPHY V3:
-                  Text size reduced to [9vw] to fit 'BLUEBERRY' (9 chars) on one line.
-                  Removed 'hyphens-auto' to prevent ugly splits like 'BLUEBER-RY'.
-                  Kept 'break-words' as a fallback just in case.
+                  UPDATED TYPOGRAPHY V4:
+                  Refined to [8vw] and REMOVED 'break-words'.
+                  This enforces strict word boundaries. "BLUEBERRY" will stay on one line.
                 */}
-                <h1 className="font-archivo font-extrabold uppercase tracking-tight leading-[0.85] mb-6 transform scale-y-110 origin-left max-w-full text-[9vw] md:text-[6rem] lg:text-[7rem] break-words">
+                <h1 className="font-archivo font-extrabold uppercase tracking-tight leading-[0.85] mb-6 transform scale-y-110 origin-left max-w-full text-[8vw] md:text-[6rem] lg:text-[7rem]">
                     {product.name}
                 </h1>
                 
