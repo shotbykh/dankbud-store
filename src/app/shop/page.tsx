@@ -34,7 +34,7 @@ export default async function ShopPage() {
         </div>
       </nav>
 
-      <div className="pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto relative z-10">
+      <div className="pt-32 pb-20 px-6 md:px-12 max-w-7xl mx-auto relative z-10">
         <h1 className="font-archivo text-[20vw] md:text-[14rem] font-extrabold uppercase tracking-tight leading-[0.8] mb-16 mix-blend-darken transform scale-y-[1.3] origin-left -ml-2 select-none">
             Fresh<br/>Drops
         </h1>

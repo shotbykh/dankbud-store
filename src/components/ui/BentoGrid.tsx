@@ -18,7 +18,7 @@ const cards = [
     {
         id: "members",
         title: "MEMBERS ONLY",
-        content: "PRIVATE\nCLUB", 
+        content: "PRIVATE\nCLUB",
         description: "Exclusivity is our currency. Membership is capped to ensure supply always meets demand. Take the leap.",
         color: "bg-black",
         textColor: "text-[#facc15]",
@@ -66,9 +66,10 @@ export default function BentoGrid() {
   const getCardTextClass = (id: string) => {
       if (id === 'location') return "text-[clamp(3rem,8vw,5rem)] break-words";
       
-      // FIXED: Lower minimum bound (0.8rem) ensures it can shrink small enough. 
-      // Removed break-words to prevent mid-word splitting.
-      if (id === 'members') return "text-[clamp(0.8rem,2.5vw,3rem)] leading-[0.9] whitespace-pre-line"; 
+      // FIXED: whitespace-pre forces it to respect the newline I put in content, 
+      // AND prevents breaking mid-word. The clamp logic will shrink the font to fit.
+      // Also reduced min font size to 0.6rem.
+      if (id === 'members') return "text-[clamp(0.6rem,2.5vw,3rem)] leading-[0.9] whitespace-pre"; 
       
       if (id === 'vibe' || id === 'manifesto') return "text-[clamp(1.5rem,3vw,3.5rem)] max-w-lg";
       
@@ -85,8 +86,8 @@ export default function BentoGrid() {
                         <Link 
                             key={card.id}
                             href={card.href}
-                            // Reduced min-height and padding for sleek look
-                            className={`${card.size} ${card.color} ${card.textColor} p-6 min-h-[100px] flex items-center justify-between relative overflow-hidden group border-4 border-black cursor-pointer hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-shadow`}
+                            // Reduced padding to p-4 globally (was p-6) to give text more room
+                            className={`${card.size} ${card.color} ${card.textColor} p-4 md:p-6 min-h-[100px] flex items-center justify-between relative overflow-hidden group border-4 border-black cursor-pointer hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-shadow`}
                         >
                             <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8">
                                 <h3 className="text-xl font-black uppercase tracking-widest z-10 opacity-60">{card.title}</h3>
@@ -108,7 +109,9 @@ export default function BentoGrid() {
                     key={card.id}
                     layoutId={card.id}
                     onClick={() => setSelectedId(card.id)}
-                    className={`${card.size} ${card.color} ${card.textColor} p-6 md:p-8 min-h-[220px] md:min-h-[300px] flex flex-col justify-between relative overflow-hidden group border-4 border-black cursor-pointer hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-shadow`}
+                    // Reduced padding from p-6 to p-4 (and p-3 for mobile via override if needed, but p-4 is safer default)
+                    // Added overflow-hidden explicitly.
+                    className={`${card.size} ${card.color} ${card.textColor} p-4 md:p-8 min-h-[220px] md:min-h-[300px] flex flex-col justify-between relative overflow-hidden group border-4 border-black cursor-pointer hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-shadow`}
                 >
                     {/* Abstract Art Overlays */}
                     {card.art === 'waving-lines' && (
@@ -124,7 +127,7 @@ export default function BentoGrid() {
 
                     <motion.h3 className="text-xl md:text-2xl font-black uppercase tracking-widest z-10">{card.title}</motion.h3>
                     
-                    <motion.p className={`font-black uppercase leading-[0.85] z-10 whitespace-pre-line ${getCardTextClass(card.id)}`}>
+                    <motion.p className={`font-black uppercase leading-[0.85] z-10 ${getCardTextClass(card.id)}`}>
                         {card.content}
                     </motion.p>
                     

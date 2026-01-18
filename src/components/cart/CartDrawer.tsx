@@ -2,7 +2,7 @@
 
 import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
-import ProductImage from "@/components/shop/ProductImage"; // Reusing this for consistent image styles
+import ProductImage from "@/components/shop/ProductImage"; 
 import Link from "next/link";
 import { useEffect } from "react";
 
@@ -77,12 +77,26 @@ export default function CartDrawer() {
                         </div>
                         
                         <div className="flex justify-between items-end mt-2">
-                             <div className="flex items-center gap-2 font-bold bg-gray-100 border-2 border-black px-2">
-                                <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
-                                <span className="w-6 text-center">{item.quantity}</span>
-                                <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                             <div className="flex items-center gap-1 font-bold bg-white border-2 border-black px-1 h-10">
+                                <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="px-2 hover:bg-gray-100 h-full">-</button>
+                                
+                                {/* EDITABLE QTY INPUT */}
+                                <input 
+                                    type="number" 
+                                    min="1"
+                                    value={item.quantity}
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value);
+                                        if (!isNaN(val) && val >= 1) {
+                                            updateQuantity(item.id, val);
+                                        }
+                                    }}
+                                    className="w-12 text-center bg-transparent font-black text-lg focus:outline-none appearance-none"
+                                />
+                                
+                                <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="px-2 hover:bg-gray-100 h-full">+</button>
                              </div>
-                             <div className="font-black">R{item.price * item.quantity}</div>
+                             <div className="font-black text-xl">R{item.price * item.quantity}</div>
                         </div>
                     </div>
                   </div>
