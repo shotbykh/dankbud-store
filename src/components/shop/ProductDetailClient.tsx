@@ -66,12 +66,11 @@ export default function ProductDetailClient({ product, initialStock = 0 }: { pro
                 </div>
                 
                 {/* 
-                  UPDATED TYPOGRAPHY: 
-                  Using fluid viewport units (13vw) to guarantee it fits on screen width, 
-                  clamped to a reasonable max size for desktop.
-                  Added break-words as fallback.
+                  UPDATED TYPOGRAPHY V2: 
+                  Reduced fluid text size to 11vw (was 13vw).
+                  Added break-words AND hyphenation to ensure long words like "BLUEBERRY" wrap if needed.
                 */}
-                <h1 className="font-archivo font-extrabold uppercase tracking-tight leading-[0.85] mb-6 transform scale-y-110 origin-left max-w-full text-[13vw] md:text-[6rem] lg:text-[7rem] break-words">
+                <h1 className="font-archivo font-extrabold uppercase tracking-tight leading-[0.85] mb-6 transform scale-y-110 origin-left max-w-full text-[11vw] md:text-[6rem] lg:text-[7rem] break-words hyphens-auto">
                     {product.name}
                 </h1>
                 
