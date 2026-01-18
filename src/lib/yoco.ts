@@ -1,5 +1,5 @@
-export const YOCO_TEST_PUBLIC_KEY = 'pk_test_c6178eab2rRObAE56664';
-export const YOCO_TEST_SECRET_KEY = 'sk_test_81a1f07dbBo09Zz103b41bfab361';
+export const YOCO_TEST_PUBLIC_KEY = process.env.YOCO_TEST_PUBLIC_KEY!;
+export const YOCO_TEST_SECRET_KEY = process.env.YOCO_TEST_SECRET_KEY!;
 
 interface CheckoutProps {
   amount: number; // In cents (e.g., R10.00 = 1000)

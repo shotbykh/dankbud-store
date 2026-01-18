@@ -1,8 +1,7 @@
 import { Resend } from 'resend';
 
-// Hardcoded for immediate functionality during launch. 
-// TODO: User must move this to Vercel Environment Variables (RESEND_API_KEY) later.
-export const RESEND_API_KEY = 're_faiqjgMP_6qYVP88e6PsnQoPBL53dy69H';
+// Keys loaded from Environment Variables for Security
+export const RESEND_API_KEY = process.env.RESEND_API_KEY!;
 
 const resend = new Resend(RESEND_API_KEY);
 
