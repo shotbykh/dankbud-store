@@ -10,6 +10,7 @@ export interface Member {
   joinedAt: string;
   totalSpent: number;
   password?: string;
+  role?: 'MEMBER' | 'ADMIN' | 'STAFF'; // Defaults to MEMBER
 }
 
 export interface Order {
@@ -44,7 +45,8 @@ export async function getMembers(): Promise<Member[]> {
       fullName: d.full_name,
       idNumber: d.id_number,
       joinedAt: d.joined_at,
-      totalSpent: d.total_spent
+      totalSpent: d.total_spent,
+      role: d.role || 'MEMBER' // Default fallback
   }));
 }
 
@@ -68,6 +70,7 @@ export async function saveMember(member: Member) {
       joined_at: member.joinedAt,
       total_spent: member.totalSpent,
       password: member.password
+      // role defaults to MEMBER in DB, so we don't set it here for fresh signups
   });
 
   if (error) throw new Error(error.message);
@@ -121,4 +124,26 @@ export async function updateMemberStatus(id: string, status: Member['status']) {
         
     if (error) throw new Error(error.message);
     return { id, status };
+}
+
+export async function updateOrderStatus(id: string, status: Order['status'], paymentStatus?: string) {
+    const { error } = await supabase
+        .from('orders')
+        .update({ status })
+        .eq('id', id);
+        
+    if (error) throw new Error(error.message);
+    return { id, status };
+}
+
+export async function logAdminAction(adminId: string, action: string, details?: any) {
+    const { error } = await supabase
+        .from('audit_logs')
+        .insert({
+            admin_id: adminId, // This is TEXT now to match members.id
+            action,
+            details
+        });
+
+    if (error) console.error("Audit Log Error:", error);
 }
