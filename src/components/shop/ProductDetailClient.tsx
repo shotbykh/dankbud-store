@@ -66,11 +66,10 @@ export default function ProductDetailClient({ product, initialStock = 0 }: { pro
                 </div>
                 
                 {/* 
-                  UPDATED TYPOGRAPHY V4:
-                  Refined to [8vw] and REMOVED 'break-words'.
-                  This enforces strict word boundaries. "BLUEBERRY" will stay on one line.
+                  UPDATED TYPOGRAPHY V5:
+                  Reduced to 7vw.
                 */}
-                <h1 className="font-archivo font-extrabold uppercase tracking-tight leading-[0.85] mb-6 transform scale-y-110 origin-left max-w-full text-[8vw] md:text-[6rem] lg:text-[7rem]">
+                <h1 className="font-archivo font-extrabold uppercase tracking-tight leading-[0.85] mb-6 transform scale-y-110 origin-left max-w-full text-[7vw] md:text-[6rem] lg:text-[7rem]">
                     {product.name}
                 </h1>
                 
