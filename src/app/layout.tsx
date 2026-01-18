@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${syne.variable} ${archivoBlack.variable} font-sans antialiased min-h-screen border-[16px] border-black bg-[#facc15]`}
+        className={`${syne.variable} ${archivoBlack.variable} font-sans antialiased min-h-screen border-[5px] border-black bg-[#facc15]`}
       >
         <Providers>
             <CartDrawer />
