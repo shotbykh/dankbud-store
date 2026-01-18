@@ -19,10 +19,6 @@ export default async function ShopPage() {
             <Link href="/" className="text-xl md:text-2xl font-black uppercase tracking-tighter hover:underline decoration-4">
                 ← Exit Shop
             </Link>
-            <span className="hidden md:inline opacity-30">|</span>
-            <span className="hidden md:inline font-bold uppercase tracking-widest text-sm">
-                Catalog v2.0 (Live DB)
-            </span>
         </div>
         <div className="font-bold uppercase tracking-widest text-sm flex gap-4 items-center">
             <CartIndicator />
@@ -72,10 +68,10 @@ export default async function ShopPage() {
                             )}
                         </div>
 
-                        <div className="flex justify-between items-start mb-4">
+                        <div className="flex flex-col mb-4 gap-2">
                             {/* Card Title Fix: break-words and hyphens logic */}
-                            <h3 className="text-4xl font-archivo font-bold uppercase leading-none tracking-tight transform scale-y-110 origin-left break-words hyphens-auto pr-2">{product.name}</h3>
-                            <div className="text-2xl font-black shrink-0">R{product.price}</div>
+                            <h3 className="text-4xl font-archivo font-bold uppercase leading-none tracking-tight transform scale-y-110 origin-left break-words hyphens-auto w-full">{product.name}</h3>
+                            <div className="text-2xl font-black shrink-0 self-end md:self-auto">R{product.price}</div>
                         </div>
                         
                          <div className="flex gap-2 mb-6 flex-wrap">
