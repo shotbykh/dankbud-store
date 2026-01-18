@@ -85,10 +85,12 @@ export default function CheckoutPage() {
                         window.location.href = payData.redirectUrl;
                         return;
                     } else {
-                        throw new Error("Payment link generation failed");
+                        // Throw the SPECIFIC error from backend
+                        throw new Error(payData.error || "Payment link generation failed");
                     }
-                } catch (payErr) {
-                    setError("Payment Gateway Error. Please try again or choose EFT.");
+                } catch (payErr: any) {
+                    // Display the specific validation error
+                    setError(payErr.message || "Payment Gateway Error.");
                     setLoading(false);
                     return;
                 }

@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 export default function AdminDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]); // New State
   const [loading, setLoading] = useState(true);
 
   // Use 'no-store' to ensure we never get cached stale data
@@ -22,9 +23,24 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchLogs = async () => {
+      try {
+          // We need a new internal API route for this to keep keys secure on server
+          const res = await fetch('/api/admin/audit'); 
+          const data = await res.json();
+          setAuditLogs(data.logs || []);
+      } catch (e) {
+          console.error(e);
+      }
+  };
+
   useEffect(() => {
     fetchOrders();
-    const interval = setInterval(fetchOrders, 10000); // Poll every 10s
+    fetchLogs();
+    const interval = setInterval(() => {
+        fetchOrders();
+        fetchLogs();
+    }, 10000); // Poll every 10s
     return () => clearInterval(interval);
   }, []);
 
@@ -47,6 +63,9 @@ export default function AdminDashboard() {
             <div className="flex gap-4">
                 <Link href="/admin/members" className="px-4 py-2 border border-[#facc15] text-[#facc15] hover:bg-[#facc15] hover:text-black font-bold uppercase transition-colors">
                     Manage Members &rarr;
+                </Link>
+                <Link href="/admin/suppliers" className="px-4 py-2 border border-[#facc15] text-[#facc15] hover:bg-[#facc15] hover:text-black font-bold uppercase transition-colors">
+                    Suppliers &rarr;
                 </Link>
                 <div className="w-px bg-white/20"></div>
                 <span className="animate-pulse text-xs text-green-500 self-center">● LIVE</span>
@@ -94,7 +113,7 @@ export default function AdminDashboard() {
                         {order.deliveryMethod === 'DELIVERY' && order.address ? (
                             <>
                                 <div className="text-white">{order.address.street}</div>
-                                <div>{order.address.suburb}, {order.address.code}</div>
+                                <div className="text-white">{order.address.suburb}, {order.address.code}</div>
                                 {order.address.instructions && <div className="mt-2 italic text-[#facc15]">"{order.address.instructions}"</div>}
                             </>
                         ) : (
@@ -124,6 +143,47 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             ))}
+        </div>
+
+        {/* AUDIT LOGS SECTION */}
+        <div className="max-w-7xl mx-auto mt-12 border-t border-white/20 pt-8">
+            <h2 className="text-2xl font-bold uppercase text-[#facc15] mb-6">Security Audit Log</h2>
+            <div className="bg-black border border-white/20 p-6 overflow-x-auto">
+                <table className="w-full text-left text-sm font-mono">
+                    <thead>
+                        <tr className="border-b border-white/20 text-gray-500 uppercase">
+                            <th className="py-2">Time</th>
+                            <th className="py-2">Staff Member</th>
+                            <th className="py-2">Action</th>
+                            <th className="py-2">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {auditLogs.length === 0 ? (
+                            <tr><td colSpan={4} className="py-4 text-center text-gray-500">No logs found.</td></tr>
+                        ) : (
+                            auditLogs.map((log) => (
+                                <tr key={log.id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                                    <td className="py-2 text-gray-400">{new Date(log.createdAt).toLocaleString()}</td>
+                                    <td className="py-2 font-bold text-white">{log.adminName}</td>
+                                    <td className="py-2">
+                                        <span className={`px-2 py-0.5 text-xs font-bold uppercase rounded ${
+                                            log.action === 'LOGIN' ? 'bg-green-900 text-green-300' :
+                                            log.action === 'BAN' ? 'bg-red-900 text-red-300' :
+                                            'bg-gray-800 text-gray-300'
+                                        }`}>
+                                            {log.action}
+                                        </span>
+                                    </td>
+                                    <td className="py-2 text-gray-500 truncate max-w-xs">
+                                        {JSON.stringify(log.details)}
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
   );

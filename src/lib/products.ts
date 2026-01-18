@@ -11,6 +11,7 @@ export interface Product {
   description: string;
   effects: string[];
   image: string;
+  supplier_id?: string; // Linked Supplier
 }
 
 // Fetch all products + stock
