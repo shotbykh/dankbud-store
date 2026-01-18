@@ -147,3 +147,33 @@ export async function logAdminAction(adminId: string, action: string, details?: 
 
     if (error) console.error("Audit Log Error:", error);
 }
+
+export async function getAuditLogs() {
+    // Select Audit Logs and JOIN with Members to get the Admin's name
+    const { data, error } = await supabase
+        .from('audit_logs')
+        .select(`
+            *,
+            members (
+                full_name,
+                email
+            )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(50); // Show last 50 actions
+
+    if (error) {
+        console.error("Fetch Audit Logs Error:", error);
+        return [];
+    }
+
+    // Flatten logic slightly for easier UI consumption
+    return data.map((log: any) => ({
+        id: log.id,
+        adminName: log.members?.full_name || 'System',
+        adminEmail: log.members?.email || 'System',
+        action: log.action,
+        details: log.details,
+        createdAt: log.created_at
+    }));
+}
