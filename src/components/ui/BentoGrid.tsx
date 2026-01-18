@@ -18,7 +18,7 @@ const cards = [
     {
         id: "members",
         title: "MEMBERS ONLY",
-        content: "PRIVATE CLUB",
+        content: "PRIVATE\nCLUB", // Force newline for better fit
         description: "Exclusivity is our currency. Membership is capped to ensure supply always meets demand. Take the leap.",
         color: "bg-black",
         textColor: "text-[#facc15]",
@@ -65,7 +65,8 @@ export default function BentoGrid() {
   // Helper for dynamic text size based on card ID
   const getCardTextClass = (id: string) => {
       if (id === 'location') return "text-[clamp(3rem,8vw,5rem)] break-words";
-      if (id === 'vibe' || id === 'manifesto') return "text-[clamp(2rem,4vw,3.5rem)] max-w-lg"; // Fluid sizing
+      if (id === 'vibe' || id === 'manifesto') return "text-[clamp(2rem,4vw,3.5rem)] max-w-lg";
+      if (id === 'members') return "text-[clamp(2rem,5vw,4rem)] break-words"; // Fixed Overflow
       return "text-3xl md:text-5xl";
   };
 
