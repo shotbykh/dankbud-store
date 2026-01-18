@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getMembers } from "@/lib/db";
+import { verifyPassword } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
@@ -23,9 +24,14 @@ export async function POST(request: Request) {
     }
 
     // Verify Password
-    // NOTE: In production, use bcrypt.compare here. 
-    // This is MVP plaintext comparison as per plan.
-    if (member.password !== password) {
+    // Use verifyPassword which handles bcrypt comparison
+    // Note: If stored password is plaintext (legacy), this will FAIL with bcrypt.compare.
+    // This effectively forces a reset for users or mandates manual updates.
+    // Given pre-launch status, this correct 'secure-by-default' approach.
+    
+    const isValid = member.password && await verifyPassword(password, member.password);
+
+    if (!isValid) {
          return NextResponse.json({ success: false, message: "Invalid credentials." }, { status: 401 });
     }
 
@@ -34,7 +40,6 @@ export async function POST(request: Request) {
     }
 
     // Login Success
-    // In production, set JWT cookie here.
     return NextResponse.json({ success: true, member });
 
   } catch (error) {

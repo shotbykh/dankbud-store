@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getOrders, Order } from '@/lib/db';
 import { supabase } from '@/lib/supabase'; // Direct access for update
+import { verifyAdminSession } from '@/lib/auth';
 
 // Force dynamic to prevent caching
 export const dynamic = 'force-dynamic';
@@ -19,6 +20,11 @@ async function updateOrderStatus(orderId: string, status: Order['status']) {
 
 export async function GET() {
     try {
+        // SECURITY CHECK
+        if (!await verifyAdminSession()) {
+             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         // Read fresh each time
         const orders = await getOrders();
         // Since we fetch from DB, we can sort here or in the DB query. 
@@ -31,6 +37,11 @@ export async function GET() {
 
 export async function PUT(req: Request) {
     try {
+        // SECURITY CHECK
+        if (!await verifyAdminSession()) {
+             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const { orderId, status } = await req.json();
         await updateOrderStatus(orderId, status);
         return NextResponse.json({ success: true });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getMembers, logAdminAction } from "@/lib/db";
 import { cookies } from "next/headers";
+import { verifyPassword } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
@@ -16,8 +17,10 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: "Invalid credentials." }, { status: 401 });
     }
 
-    // 2. Verify Password (Simple comparison for MVP)
-    if (member.password !== password) {
+    // 2. Verify Password (HASHED)
+    const isValid = member.password && await verifyPassword(password, member.password);
+    
+    if (!isValid) {
          return NextResponse.json({ success: false, message: "Invalid credentials." }, { status: 401 });
     }
 

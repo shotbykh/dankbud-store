@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { hashPassword } from './auth';
 
 export interface Member {
   id: string;
@@ -60,6 +61,9 @@ export async function saveMember(member: Member) {
       
   if (existing) throw new Error("Member already exists");
 
+  // Hash password if present
+  const passwordToSave = member.password ? await hashPassword(member.password) : undefined;
+
   const { error } = await supabase.from('members').insert({
       id: member.id,
       full_name: member.fullName,
@@ -69,7 +73,7 @@ export async function saveMember(member: Member) {
       status: member.status,
       joined_at: member.joinedAt,
       total_spent: member.totalSpent,
-      password: member.password
+      password: passwordToSave
       // role defaults to MEMBER in DB, so we don't set it here for fresh signups
   });
 
