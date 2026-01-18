@@ -7,20 +7,40 @@ function generateId() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
+function calculateAgeFromDob(dob: string) {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { fullName, email, phone, idNumber, password } = body;
+    const { fullName, email, phone, idNumber, password, idType, dateOfBirth } = body;
 
-    // 1. Verify Age
-    const { age, isValid } = parseSAID(idNumber);
-
-    if (!isValid) {
-        return NextResponse.json({ success: false, message: "Invalid ID Number format." }, { status: 400 });
-    }
-
-    if (age < 18) {
-        return NextResponse.json({ success: false, message: "You must be 18 or older to join." }, { status: 403 });
+    // 1. Verify Age based on ID Type
+    if (idType === 'PASSPORT') {
+        if (!dateOfBirth) {
+             return NextResponse.json({ success: false, message: "Date of Birth required for Passport." }, { status: 400 });
+        }
+        const age = calculateAgeFromDob(dateOfBirth);
+        if (age < 18) {
+            return NextResponse.json({ success: false, message: "You must be 18 or older to join." }, { status: 403 });
+        }
+    } else {
+        // SA ID
+        const { age, isValid } = parseSAID(idNumber);
+        if (!isValid) {
+            return NextResponse.json({ success: false, message: "Invalid SA ID Number format." }, { status: 400 });
+        }
+        if (age < 18) {
+            return NextResponse.json({ success: false, message: "You must be 18 or older to join." }, { status: 403 });
+        }
     }
 
     if (!password || password.length < 6) {
@@ -33,11 +53,11 @@ export async function POST(request: Request) {
         fullName,
         email,
         phone,
-        idNumber,
+        idNumber, // Stores either SA ID or Passport Number
         status: "APPROVED" as const,
         joinedAt: new Date().toISOString(),
         totalSpent: 0,
-        password // Storing plain text for MVP (Prototype only) - DO NOT DO THIS IN PROD
+        password 
     };
 
     try {
@@ -46,11 +66,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: "Member already exists." }, { status: 409 });
     }
 
-    // 3. Simulate "Immediate Email" (Log it)
-    console.log(`[EMAIL SENT] To: ${email} | Subject: Welcome to DankBud | Access Granted`);
+    console.log('[EMAIL SENT] To: ' + email + ' | Access Granted');
 
-    // 4. Return Session Token (Simulated)
-    // In a real app, we'd set an HTTP-only cookie here.
     return NextResponse.json({ success: true, member: newMember });
 
   } catch (error) {

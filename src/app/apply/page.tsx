@@ -15,10 +15,14 @@ export default function ApplyPage() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<ApplicationFormData>({
     resolver: zodResolver(applicationSchema),
     mode: "onChange",
+    defaultValues: {
+        idType: "SA_ID"
+    }
   });
 
   const onSubmit = async (data: ApplicationFormData) => {
@@ -41,9 +45,8 @@ export default function ApplyPage() {
         }
 
         // SUCCESS: Auto-Login & Redirect
-        // Store session (In real app, this would be an httpOnly cookie)
         localStorage.setItem("dankbud-session", JSON.stringify(result.member));
-        localStorage.setItem("dankbud-age-verified", "true"); // Double check
+        localStorage.setItem("dankbud-age-verified", "true"); 
 
         router.push('/shop?welcome=true');
 
@@ -151,20 +154,66 @@ export default function ApplyPage() {
                         {errors.phone && <p className="text-red-600 font-bold uppercase text-sm">{errors.phone.message}</p>}
                     </div>
                     
-                    {/* ID NUMBER */}
+                    {/* ID TYPE Selection */}
+                    <div className="space-y-4">
+                        <label className="block text-xl font-black uppercase">Identity Document</label>
+                        <div className="flex gap-4">
+                            <label className={`flex-1 cursor-pointer border-4 border-black p-4 text-center font-bold uppercase transition-all ${watch('idType') !== 'PASSPORT' ? 'bg-black text-[#facc15]' : 'bg-transparent opacity-50 hover:opacity-100'}`}>
+                                <input 
+                                    type="radio" 
+                                    value="SA_ID" 
+                                    className="hidden" 
+                                    {...register("idType")} 
+                                />
+                                🇿🇦 SA ID
+                            </label>
+                            <label className={`flex-1 cursor-pointer border-4 border-black p-4 text-center font-bold uppercase transition-all ${watch('idType') === 'PASSPORT' ? 'bg-black text-[#facc15]' : 'bg-transparent opacity-50 hover:opacity-100'}`}>
+                                <input 
+                                    type="radio" 
+                                    value="PASSPORT" 
+                                    className="hidden" 
+                                    {...register("idType")} 
+                                />
+                                🌍 Passport
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* ID NUMBER INPUT */}
                     <div className="space-y-2">
                         <label className="block text-xl font-black uppercase flex justify-between items-center">
-                            <span>SA ID Number</span> 
+                            <span>{watch('idType') === 'PASSPORT' ? 'Passport Number' : 'SA ID Number'}</span> 
                             <span className="text-xs bg-black text-[#facc15] px-2 py-1 rounded">STRICT</span>
                         </label>
                         <input 
-                            {...register("idNumber")}
+                            {...register("idNumber", {
+                                onChange: (e) => {
+                                    if(watch('idType') !== 'PASSPORT') {
+                                       e.target.value = e.target.value.replace(/\D/g, ''); 
+                                    } else {
+                                       e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                                    }
+                                }
+                            })}
                             className="w-full bg-transparent border-b-4 border-black p-4 text-2xl font-bold placeholder-black/30 focus:outline-none focus:bg-black/5 transition-colors tracking-widest"
-                            placeholder="YYMMDD SSSS CAZ"
-                            maxLength={13}
+                            placeholder={watch('idType') === 'PASSPORT' ? "A12345678" : "YYMMDDSSSSCAZ"}
+                            maxLength={watch('idType') === 'PASSPORT' ? 20 : 13}
                         />
                         {errors.idNumber && <p className="text-red-600 font-bold uppercase text-sm">{errors.idNumber.message}</p>}
                     </div>
+
+                    {/* DATE OF BIRTH (CONDITIONAL FOR PASSPORT) */}
+                    {watch('idType') === 'PASSPORT' && (
+                        <div className="space-y-2 animate-in fade-in slide-in-from-top-4">
+                            <label className="block text-xl font-black uppercase">Date of Birth</label>
+                            <input 
+                                type="date"
+                                {...register("dateOfBirth")}
+                                className="w-full bg-transparent border-b-4 border-black p-4 text-2xl font-bold placeholder-black/30 focus:outline-none focus:bg-black/5 transition-colors uppercase"
+                            />
+                             {errors.dateOfBirth && <p className="text-red-600 font-bold uppercase text-sm">{errors.dateOfBirth.message}</p>}
+                        </div>
+                    )}
 
                     {/* SUBMIT BUTTON */}
                     <div className="pt-8">
