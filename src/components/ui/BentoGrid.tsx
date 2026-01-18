@@ -18,7 +18,7 @@ const cards = [
     {
         id: "members",
         title: "MEMBERS ONLY",
-        content: "PRIVATE\nCLUB", // Force newline for better fit
+        content: "PRIVATE CLUB", // Back to space, let CSS handle wrapping
         description: "Exclusivity is our currency. Membership is capped to ensure supply always meets demand. Take the leap.",
         color: "bg-black",
         textColor: "text-[#facc15]",
@@ -64,9 +64,15 @@ export default function BentoGrid() {
 
   // Helper for dynamic text size based on card ID
   const getCardTextClass = (id: string) => {
+      // Logic:
+      // Location (GQ HQ): Very short, can be huge.
+      // Members (PRIVATE CLUB): 12 chars. Needs to be smaller to fit in 1/3 col.
+      // Vibe: Longer sentence.
+      
       if (id === 'location') return "text-[clamp(3rem,8vw,5rem)] break-words";
-      if (id === 'vibe' || id === 'manifesto') return "text-[clamp(2rem,4vw,3.5rem)] max-w-lg";
-      if (id === 'members') return "text-[clamp(2rem,5vw,4rem)] break-words"; // Fixed Overflow
+      if (id === 'members') return "text-[clamp(1.5rem,2.5vw,3.5rem)] leading-tight break-words"; // Aggressively smaller
+      if (id === 'vibe' || id === 'manifesto') return "text-[clamp(1.5rem,3vw,3.5rem)] max-w-lg";
+      
       return "text-3xl md:text-5xl";
   };
 
