@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/context/Providers";
 import CartDrawer from "@/components/cart/CartDrawer";
 import Footer from "@/components/ui/Footer";
+import { Analytics } from "@vercel/analytics/react";
 
 const syne = Syne({
   variable: "--font-syne",
@@ -37,6 +38,7 @@ export default function RootLayout({
             <CartDrawer />
             {children}
             <Footer />
+            <Analytics />
         </Providers>
       </body>
     </html>
