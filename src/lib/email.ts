@@ -63,17 +63,18 @@ export const EmailService = {
         orderId: string,
         pudoDetails: { pin: string; waybill: string },
         memberName: string
-        if(!process.env.RESEND_API_KEY) return;
+    ) {
+        if (!process.env.RESEND_API_KEY) return;
 
-    // Send to Admin (Env or Hardcoded default)
-    const adminEmail = process.env.ADMIN_EMAIL || 'shotbykh@gmail.com';
+        // Send to Admin (Env or Hardcoded default)
+        const adminEmail = process.env.ADMIN_EMAIL || 'shotbykh@gmail.com';
 
-    try {
-        await resend.emails.send({
-            from: FROM_EMAIL,
-            to: adminEmail,
-            subject: `📦 [ADMIN] PUDO Booked for #${orderId}`,
-            html: `
+        try {
+            await resend.emails.send({
+                from: FROM_EMAIL,
+                to: adminEmail,
+                subject: `📦 [ADMIN] PUDO Booked for #${orderId}`,
+                html: `
                 <h1>PUDO Shipment Created</h1>
                 <p>Order: <strong>#${orderId}</strong></p>
                 <p>Member: ${memberName}</p>
@@ -82,11 +83,11 @@ export const EmailService = {
                 <hr/>
                 <p>Drop off the package at your source terminal (Miramar or as configured).</p>
             `
-        });
-    } catch(e) {
-        console.error("❌ [Email-Admin] Failed:", e);
-    }
-},
+            });
+        } catch (e) {
+            console.error("❌ [Email-Admin] Failed:", e);
+        }
+    },
 
     async sendStaffNotification(
         subject: string,
@@ -94,7 +95,7 @@ export const EmailService = {
     ) {
         if (!process.env.RESEND_API_KEY) return;
 
-        const adminEmail = 'admin@dankbud.co.za';
+        const adminEmail = process.env.ADMIN_EMAIL || 'shotbykh@gmail.com';
 
         try {
             await resend.emails.send({
