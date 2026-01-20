@@ -35,6 +35,12 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Order not found' }, { status: 404 });
         }
 
+        // SECURITY CHECK: Strict Payment Verification
+        // User cannot book PUDO unless they have actually PAID.
+        if (order.status !== 'PAID' && order.status !== 'DISPATCHED') {
+            return NextResponse.json({ error: 'Security Block: Order is not PAID.' }, { status: 403 });
+        }
+
         // 2. Book PUDO
         // Use default source terminal if not set in env (104 is a fallback example, usually Env var)
         // The service handles PUDO vs Door logic internally based on order.delivery_method
