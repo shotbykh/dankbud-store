@@ -454,7 +454,9 @@ export default function CheckoutPage() {
 
                     <div className="bg-white p-6 border-4 border-black font-mono text-sm">
                         <p className="font-bold uppercase underline mb-2">Secure Checkout</p>
-                        <p>Your order is encrypted and processed securely. We do not store your banking details. Delivery is strictly to the registered member's address in Port Elizabeth.</p>
+                        <p>Your order is encrypted and processed securely. We do not store your banking details.
+                            We deliver <strong>Nationwide</strong> via PUDO Lockers and offer <strong>Local Delivery</strong> within Port Elizabeth.
+                        </p>
                     </div>
                 </div>
 
