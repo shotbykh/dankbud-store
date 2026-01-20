@@ -26,10 +26,11 @@ export interface Order {
     city: string;
     code: string;
     instructions?: string;
+    pudoTerminal?: { id: string | number; name: string; };
   };
   createdAt: string;
-  paymentMethod: 'EFT' | 'CASH';
-  deliveryMethod: 'DELIVERY' | 'COLLECTION';
+  paymentMethod: 'EFT' | 'CASH' | 'ONLINE';
+  deliveryMethod: 'DELIVERY' | 'COLLECTION' | 'PUDO';
 }
 
 // --- SUPABASE API ---
@@ -84,6 +85,11 @@ export async function saveMember(member: Member) {
 export async function saveOrder(order: Order) {
   console.log("Saving Order for Member:", order.memberId);
 
+  // If PUDO, ensure address contains the terminal info
+  const addressPayload = order.deliveryMethod === 'PUDO' 
+      ? { ...order.address, pudoTerminal: order.address.pudoTerminal } 
+      : order.address;
+
   const { error } = await supabase.from('orders').insert({
       id: order.id,
       member_id: order.memberId,
@@ -92,7 +98,7 @@ export async function saveOrder(order: Order) {
       status: order.status,
       payment_method: order.paymentMethod,
       delivery_method: order.deliveryMethod,
-      address: order.address, // stored as jsonb
+      address: addressPayload, // stored as jsonb
       created_at: order.createdAt
   });
   
@@ -180,4 +186,21 @@ export async function getAuditLogs() {
         details: log.details,
         createdAt: log.created_at
     }));
+}
+
+export async function getOrder(id: string): Promise<Order | null> {
+    const { data, error } = await supabase.from('orders').select('*').eq('id', id).single();
+    if (error || !data) return null;
+    
+    return {
+        id: data.id,
+        memberId: data.member_id,
+        items: data.items,
+        total: data.total,
+        status: data.status,
+        address: data.address,
+        createdAt: data.created_at,
+        paymentMethod: data.payment_method,
+        deliveryMethod: data.delivery_method
+    };
 }

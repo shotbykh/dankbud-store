@@ -18,7 +18,7 @@ export default function AccountPage() {
 
     useEffect(() => {
         const fetchOrders = async () => {
-            // Fallback Auth Logic: Check localStorage if cookie fails
+             // Fallback Auth Logic: Check localStorage if cookie fails
             let headers: any = {};
             const stored = localStorage.getItem('dankbud-session');
             if (stored) {
@@ -94,6 +94,7 @@ export default function AccountPage() {
                                             <span className={`px-3 py-1 text-xs font-bold uppercase border-2 ${
                                                 order.status === 'PENDING' ? 'bg-orange-100 border-orange-500 text-orange-600' :
                                                 order.status === 'PAID' ? 'bg-blue-100 border-blue-500 text-blue-600' :
+                                                order.status === 'DISPATCHED' ? 'bg-purple-100 border-purple-500 text-purple-600' :
                                                 'bg-green-100 border-green-500 text-green-600'
                                             }`}>
                                                 {order.status}

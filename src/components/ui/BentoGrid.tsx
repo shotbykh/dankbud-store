@@ -46,6 +46,17 @@ const cards = [
         size: "md:col-span-2",
         art: "none"
     },
+     {
+        id: "delivery",
+        title: "LOGISTICS",
+        content: "NATIONWIDE\nDELIVERIES",
+        description: "From P.E. to anywhere in SA. Discrete, secure, and fast. Locker to Locker or straight to your door via PUDO.",
+        color: "bg-black", 
+        textColor: "text-white",
+        size: "md:col-span-3", 
+        art: "none",
+        href: "/delivery"
+    },
     {
         id: "profile",
         title: "MEMBER ZONE",
@@ -91,7 +102,7 @@ export default function BentoGrid() {
                         >
                             <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8">
                                 <h3 className="text-xl font-black uppercase tracking-widest z-10 opacity-60">{card.title}</h3>
-                                <p className="font-black uppercase leading-none z-10 text-[clamp(1.5rem,3vw,2.5rem)] text-black group-hover:underline decoration-4 underline-offset-4">
+                                <p className="font-black uppercase leading-none z-10 text-[clamp(1.5rem,3vw,2.5rem)] text-inherit group-hover:underline decoration-4 underline-offset-4">
                                     {card.content}
                                 </p>
                             </div>

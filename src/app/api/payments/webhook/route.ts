@@ -2,40 +2,34 @@ import { NextResponse } from 'next/server';
 import { updateOrderStatus } from '@/lib/db';
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    console.log("Webhook Received:", body);
+    try {
+        const body = await req.json();
+        const eventType = body.type;
+        const payload = body.payload;
 
-    // Yoco Webhook Structure:
-    // {
-    //   type: "payment.succeeded",
-    //   payload: {
-    //     metadata: { orderId: "..." },
-    //     status: "successful",
-    //     ...
-    //   }
-    // }
+        if (eventType === 'payment.succeeded') {
+            const orderId = payload.metadata?.orderId;
 
-    const eventType = body.type;
-    const payload = body.payload;
+            if (orderId) {
+                console.log(`✅ [Webhook] Payment Succeeded for Order ${orderId}`);
 
-    if (eventType === 'payment.succeeded') {
-        const orderId = payload.metadata?.orderId;
-        
-        if (orderId) {
-            console.log(`[Webhook] Marking Order ${orderId} as PAID`);
-            await updateOrderStatus(orderId, 'PAID');
-            return NextResponse.json({ received: true, status: 'updated' });
-        } else {
-             console.warn("[Webhook] No orderId found in metadata");
-             return NextResponse.json({ received: true, status: 'ignored_no_id' });
+                // 1. Mark Order as PAID
+                // NO Automated PUDO Booking. Authorization is now manual in Admin Console.
+                await updateOrderStatus(orderId, 'PAID');
+
+                console.log("ℹ️ [Webhook] Order marked PAID. Awaiting Admin Authorization for PUDO.");
+
+                return NextResponse.json({ received: true, status: 'updated' });
+            } else {
+                console.warn("⚠️ [Webhook] No Order ID in metadata");
+                return NextResponse.json({ received: true, status: 'no_metadata' });
+            }
         }
+
+        return NextResponse.json({ received: true });
+
+    } catch (error: any) {
+        console.error("❌ [Webhook] Error:", error.message);
+        return NextResponse.json({ error: 'Webhook Handler Failed' }, { status: 500 });
     }
-
-    return NextResponse.json({ received: true });
-
-  } catch (error: any) {
-    console.error('Webhook Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
 }

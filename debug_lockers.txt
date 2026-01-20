@@ -1,0 +1,126 @@
+Total Terminals: 2213
+Found "Walmer" matches: 5
+Sample Match: {
+  "code": "CG51",
+  "provider": "TCG",
+  "name": "Walmer Park Shopping Centre",
+  "latitude": "-33.9802494",
+  "longitude": "25.5586924",
+  "openinghours": [
+    {
+      "day": "Monday",
+      "open_time": "08:00:00",
+      "close_time": "17:00:00",
+      "isStoreOpen": "Open"
+    },
+    {
+      "day": "Tuesday",
+      "open_time": "08:00:00",
+      "close_time": "17:00:00",
+      "isStoreOpen": "Open"
+    },
+    {
+      "day": "Wednesday",
+      "open_time": "08:00:00",
+      "close_time": "17:00:00",
+      "isStoreOpen": "Open"
+    },
+    {
+      "day": "Thursday",
+      "open_time": "08:00:00",
+      "close_time": "17:00:00",
+      "isStoreOpen": "Open"
+    },
+    {
+      "day": "Friday",
+      "open_time": "08:00:00",
+      "close_time": "17:00:00",
+      "isStoreOpen": "Open"
+    },
+    {
+      "day": "Saturday",
+      "open_time": "08:00:00",
+      "close_time": "13:00:00",
+      "isStoreOpen": "Open"
+    },
+    {
+      "day": "Sunday",
+      "open_time": "08:00:00",
+      "close_time": "13:00:00",
+      "isStoreOpen": "Open"
+    },
+    {
+      "day": "Public Holidays",
+      "open_time": "08:00:00",
+      "close_time": "13:00:00",
+      "isStoreOpen": "Open"
+    }
+  ],
+  "address": "Main Rd, Walmer, Gqeberha, 6070",
+  "detailed_address": {
+    "country": "South Africa",
+    "locality": "Gqeberha",
+    "province": "Eastern Cape",
+    "postal_code": "6070",
+    "street_name": "Main Road",
+    "sublocality": "Walmer",
+    "street_number": "",
+    "formatted_address": "Main Rd, Walmer, Gqeberha, 6070"
+  },
+  "type": {
+    "id": 2,
+    "name": "Locker"
+  },
+  "place": {
+    "placeNumber": "",
+    "town": "Gqeberha",
+    "postalCode": "6070"
+  },
+  "lstTypesBoxes": [
+    {
+      "id": 3,
+      "name": "V4-L",
+      "type": "13",
+      "width": 41,
+      "height": 41,
+      "length": 60,
+      "weight": 15
+    },
+    {
+      "id": 4,
+      "name": "V4-S",
+      "type": "11",
+      "width": 41,
+      "height": 8,
+      "length": 60,
+      "weight": 5
+    },
+    {
+      "id": 5,
+      "name": "V4-XS",
+      "type": "10",
+      "width": 17,
+      "height": 8,
+      "length": 60,
+      "weight": 2
+    },
+    {
+      "id": 6,
+      "name": "V4-M",
+      "type": "12",
+      "width": 41,
+      "height": 19,
+      "length": 60,
+      "weight": 10
+    },
+    {
+      "id": 7,
+      "name": "V4-XL",
+      "type": "14",
+      "width": 41,
+      "height": 69,
+      "length": 60,
+      "weight": 20
+    }
+  ]
+}

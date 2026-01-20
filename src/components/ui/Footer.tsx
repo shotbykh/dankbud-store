@@ -2,30 +2,44 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-black text-[#facc15] border-t-4 border-[#facc15] py-12 px-8 font-mono relative z-10">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
+    <footer className="bg-black text-[#facc15] border-t-[5px] border-black p-8 font-mono relative z-10">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        {/* BRAND */}
         <div>
-           <div className="text-3xl font-black uppercase mb-4">DankBud</div>
-           <p className="text-sm text-gray-400 max-w-xs">
-             A private members-only club for connoisseurs. 
-             <br/>Strictly Over 18.
+          <h2 className="text-3xl font-black uppercase font-archivo mb-2">DankBud</h2>
+          <p className="text-sm opacity-80">
+            Exclusive Members Club.<br/>
+            Top Shelf. Wholesale Prices.<br/>
+            Port Elizabeth, ZA.
+          </p>
+        </div>
+
+        {/* LINKS */}
+        <div>
+          <h3 className="font-bold uppercase mb-4 decoration-wavy underline decoration-[#facc15]">Navigate</h3>
+          <ul className="space-y-2 text-sm">
+              <li><Link href="/" className="hover:text-yellow-400 uppercase">Home</Link></li>
+              <li><Link href="/shop" className="hover:text-yellow-400 uppercase">Shop</Link></li>
+              <li><Link href="/delivery" className="hover:text-yellow-400 uppercase">Delivery Info</Link></li>
+              <li><Link href="/cart" className="hover:text-yellow-400 uppercase">Cart</Link></li>
+              <li><Link href="/admin/login" className="text-neutral-500 hover:text-white uppercase text-xs">Staff</Link></li>
+          </ul>
+        </div>
+
+        {/* LEGAL */}
+        <div>
+           <h3 className="font-bold uppercase mb-4 decoration-wavy underline decoration-[#facc15]">Legal</h3>
+           <p className="text-xs opacity-60 mb-2">
+             This website is for members only. 
+             Strictly Over 18s. 
+             Right of admission reserved.
+           </p>
+           <p className="text-xs opacity-60">
+             &copy; {new Date().getFullYear()} DankBud Details Pty Ltd.
            </p>
         </div>
 
-        <div className="flex flex-col gap-4 text-sm font-bold uppercase">
-           <Link href="/terms" className="hover:underline hover:text-white">Terms of Service</Link>
-           <Link href="/privacy" className="hover:underline hover:text-white">Privacy Policy</Link>
-           <Link href="/returns" className="hover:underline hover:text-white">Refund Policy</Link>
-        </div>
-        
-        <div className="text-right">
-            <div className="text-xs text-gray-500">
-                &copy; {new Date().getFullYear()} DankBud. All rights reserved.
-            </div>
-            <div className="text-xs text-gray-600 mt-2">
-                Payments secured by Yoco
-            </div>
-        </div>
       </div>
     </footer>
   );

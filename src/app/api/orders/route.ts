@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     const data = await req.json();
     
     // DEBUG LOGGING
-    console.log("Processing Order...");
+    console.log("Processing Order...", data?.deliveryMethod);
     
     // Validate session: Check COOKIE first, then HEADER fallback
     const cookieStore = await cookies();
@@ -23,10 +23,23 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Unauthorized: Session missing' }, { status: 401 });
     }
 
-    const { items, total, address, paymentMethod, deliveryMethod } = data;
+    // Extract all fields
+    const { items, total, address, paymentMethod, deliveryMethod, pudoTerminal } = data;
 
     if (!items || items.length === 0) {
         return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
+    }
+
+    // Construct the final address object
+    // If PUDO, we attach the terminal info to the address JSON
+    let finalAddress = address;
+    if (deliveryMethod === 'PUDO' && pudoTerminal) {
+        finalAddress = {
+            ...address,
+            pudoTerminal: pudoTerminal // { id, name }
+        };
+    } else if (deliveryMethod === 'COLLECTION') {
+        finalAddress = undefined; // No address needed for collection
     }
 
     const newOrder: Order = {
@@ -35,7 +48,7 @@ export async function POST(req: Request) {
         items,
         total,
         status: 'PENDING',
-        address: deliveryMethod === 'COLLECTION' ? undefined : address,
+        address: finalAddress,
         deliveryMethod: deliveryMethod || 'DELIVERY',
         paymentMethod,
         createdAt: new Date().toISOString(),
