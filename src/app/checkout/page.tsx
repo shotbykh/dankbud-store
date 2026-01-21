@@ -175,12 +175,12 @@ export default function CheckoutPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#facc15] p-4 md:p-8 pt-32">
+        <div className="min-h-screen bg-[#facc15] p-4 md:p-8 pt-12 md:pt-32">
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
 
                 {/* LEFT: FORM */}
                 <div className="bg-white border-4 border-black p-6 md:p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                    <h1 className="text-5xl font-archivo uppercase mb-8">Checkout</h1>
+                    <h1 className="text-4xl md:text-5xl font-archivo uppercase mb-8">Checkout</h1>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Error Display */}
@@ -448,7 +448,7 @@ export default function CheckoutPage() {
                                 <span className="text-xl font-bold uppercase">Total</span>
                                 <span className="text-xs opacity-75">{items.reduce((s, i) => s + i.quantity, 0)} Items</span>
                             </div>
-                            <span className="text-5xl font-archivo">R{finalTotal}</span>
+                            <span className="text-4xl md:text-5xl font-archivo">R{finalTotal}</span>
                         </div>
                     </div>
 
