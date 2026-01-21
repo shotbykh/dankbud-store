@@ -3,7 +3,8 @@ import { Syne, Archivo_Black } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/context/Providers";
 import CartDrawer from "@/components/cart/CartDrawer";
-import Footer from "@/components/ui/Footer";
+import Footer
+import ComplianceBar from "@/components/ui/Footer";
 import { Analytics } from "@vercel/analytics/react";
 
 const syne = Syne({
@@ -38,6 +39,7 @@ export default function RootLayout({
             <CartDrawer />
             {children}
             <Footer />
+            <ComplianceBar />
             <Analytics />
         </Providers>
       </body>
