@@ -107,7 +107,7 @@ export default function ProductDetailClient({ product, initialStock = 0 }: { pro
                     />
                     
                      <div className="flex justify-between items-center border-t-2 border-black pt-4">
-                        <span className="font-bold text-lg uppercase">Total Price</span>
+                        <span className="font-bold text-lg uppercase">Total Contribution</span>
                         <span className="text-4xl font-black">R{product.price * quantity}</span>
                     </div>
                 </div>

@@ -10,7 +10,7 @@ export default function Footer() {
                     <h2 className="text-3xl font-black uppercase font-archivo mb-2">DankBud</h2>
                     <p className="text-sm opacity-80">
                         Exclusive Members Club.<br />
-                        Top Shelf. Wholesale Prices.<br />
+                        Top Shelf. Shared Costs.<br />
                         Port Elizabeth, ZA.
                     </p>
                 </div>

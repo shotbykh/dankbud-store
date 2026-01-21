@@ -21,7 +21,7 @@ const archivoBlack = Archivo_Black({
 
 export const metadata: Metadata = {
   title: "DankBud | Exclusive Cannabis Club",
-  description: "Members only. Premium product. Wholesale prices.",
+  description: "Members only. Premium product. Private Club Access.",
 };
 
 export default function RootLayout({
