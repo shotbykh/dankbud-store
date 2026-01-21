@@ -176,11 +176,11 @@ export default function CheckoutPage() {
 
     return (
         <div className="min-h-screen bg-[#facc15] p-4 md:p-8 pt-32">
-            <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
 
                 {/* LEFT: FORM */}
                 <div className="bg-white border-4 border-black p-6 md:p-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                    <h1 className="text-3xl md:text-5xl font-archivo uppercase mb-8">Checkout</h1>
+                    <h1 className="text-5xl font-archivo uppercase mb-8">Checkout</h1>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Error Display */}
@@ -198,11 +198,11 @@ export default function CheckoutPage() {
                         {/* MAIN METHOD TOGGLE - RESPONSIVE FIX */}
                         <div className="grid grid-cols-2 gap-2 md:gap-4 mb-4">
                             <button type="button" onClick={() => setMainMethod('DELIVERY')} className={`p-2 md:p-4 border-2 md:border-4 border-black font-black uppercase text-sm md:text-xl transition-all flex flex-col items-center justify-center gap-1 md:gap-2 ${mainMethod === 'DELIVERY' ? 'bg-black text-[#facc15]' : 'bg-white hover:bg-gray-100'}`}>
-                                <span className="text-center w-full leading-tight text-xs md:text-lg">DELIVERY</span>
+                                <span className="text-center w-full leading-tight">DELIVERY</span>
                                 <span className="text-2xl md:text-3xl">🚚</span>
                             </button>
                             <button type="button" onClick={() => setMainMethod('COLLECTION')} className={`p-2 md:p-4 border-2 md:border-4 border-black font-black uppercase text-sm md:text-xl transition-all flex flex-col items-center justify-center gap-1 md:gap-2 ${mainMethod === 'COLLECTION' ? 'bg-black text-[#facc15]' : 'bg-white hover:bg-gray-100'}`}>
-                                <span className="text-center w-full leading-tight text-xs md:text-lg">COLLECT</span>
+                                <span className="text-center w-full leading-tight">COLLECT</span>
                                 <span className="text-2xl md:text-3xl">📦</span>
                             </button>
                         </div>
