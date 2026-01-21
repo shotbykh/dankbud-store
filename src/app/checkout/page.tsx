@@ -175,7 +175,7 @@ export default function CheckoutPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#facc15] p-4 md:p-8 pt-32">
+        <div className="min-h-screen bg-[#facc15] p-4 md:p-8 pt-20 md:pt-32">
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
 
                 {/* LEFT: FORM */}
