@@ -22,7 +22,7 @@ export default function Footer() {
                         <li><Link href="/" className="hover:text-yellow-400 uppercase">Home</Link></li>
                         <li><Link href="/shop" className="hover:text-yellow-400 uppercase">Shop</Link></li>
                         <li><Link href="/delivery" className="hover:text-yellow-400 uppercase">Delivery Info</Link></li>
-                        <li><Link href="/cart" className="hover:text-yellow-400 uppercase">Cart</Link></li>
+                        <li><Link href="/checkout" className="hover:text-yellow-400 uppercase">Cart</Link></li>
                         <li><Link href="/admin/login" className="text-neutral-500 hover:text-white uppercase text-xs">Staff</Link></li>
                     </ul>
                 </div>
