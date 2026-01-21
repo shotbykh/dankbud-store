@@ -2,9 +2,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// FROM: must be a verified sender in Resend dashboard, e.g., 'orders@dankbud.co.za' or 'onboarding@resend.dev' if testing
-// For now, I'll use a likely verified domain or a generic one if configured. 
-// Assuming the user has a domain set up, otherwise 'onboarding@resend.dev' works for testing to ONLY their email.
+// FROM: must be a verified sender in Resend dashboard
 const FROM_EMAIL = 'DankBud Orders <orders@dankbud.co.za>';
 
 export const EmailService = {
@@ -113,6 +111,58 @@ export const EmailService = {
             });
         } catch (e) {
             console.error("❌ [Email-Staff] Failed:", e);
+        }
+    },
+
+    async sendWelcomeEmail(toEmail: string, memberName: string) {
+        if (!process.env.RESEND_API_KEY) return;
+
+        try {
+            await resend.emails.send({
+                from: FROM_EMAIL,
+                to: toEmail,
+                subject: `🍄 Welcome to the Club, ${memberName}`,
+                html: `
+                <div style="background-color: #000000; color: #facc15; font-family: 'Courier New', Courier, monospace; padding: 40px 20px; text-align: center;">
+                    
+                    <!-- HERO: LOGO / HEADER -->
+                    <div style="border: 4px solid #facc15; padding: 20px; display: inline-block; margin-bottom: 30px; box-shadow: 8px 8px 0px 0px #ffffff;">
+                        <h1 style="margin: 0; font-size: 36px; text-transform: uppercase; letter-spacing: -2px;">DANKBUD</h1>
+                        <p style="margin: 5px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Private Member Club</p>
+                    </div>
+
+                    <!-- BODY COPY -->
+                    <h2 style="font-size: 24px; text-transform: uppercase; margin-bottom: 20px;">You're In.</h2>
+                    
+                    <p style="font-size: 16px; line-height: 1.6; max-width: 400px; margin: 0 auto 30px; color: #ffffff;">
+                        Welcome to the underground. Your membership has been approved. 
+                        You now have access to our curated selection of premium stash at shared member costs.
+                    </p>
+
+                    <!-- CTA BUTTON -->
+                    <a href="https://dankbud.co.za/shop" style="background-color: #facc15; color: #000000; padding: 15px 30px; font-size: 20px; font-weight: bold; text-decoration: none; text-transform: uppercase; display: inline-block; border: 4px solid #ffffff; box-shadow: 4px 4px 0px 0px #ffffff;">
+                        Enter the Shop
+                    </a>
+
+                    <!-- INFO BOX -->
+                    <div style="margin-top: 40px; border-top: 1px solid #333; padding-top: 20px;">
+                        <p style="color: #666; font-size: 12px; text-transform: uppercase;">
+                            Your Member ID is linked to this email.<br>
+                            Always use <strong>${toEmail}</strong> when checking out.
+                        </p>
+                    </div>
+
+                    <!-- FOOTER -->
+                    <p style="margin-top: 50px; font-size: 10px; color: #444;">
+                        NOT FOR PUBLIC SALE. RIGHT OF ADMISSION RESERVED.<br>
+                        PORT ELIZABETH, SOUTH AFRICA
+                    </p>
+                </div>
+                `
+            });
+            console.log(`📧 [Email] Sent WELCOME to ${toEmail}`);
+        } catch (e) {
+            console.error("❌ [Email-Welcome] Failed:", e);
         }
     }
 
