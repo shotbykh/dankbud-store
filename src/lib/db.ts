@@ -51,13 +51,9 @@ export async function getMembers(): Promise<Member[]> {
   }));
 }
 
-// FIX: Accept optional client to support RLS (Auth Context)
-export async function saveMember(member: Member, client?: any) {
-  // Use passed client (Auth context) or fallback to default (Anon)
-  const supabaseClient = client || supabase;
-
+export async function saveMember(member: Member) {
   // Check duplicates
-  const { data: existing } = await supabaseClient
+  const { data: existing } = await supabase
       .from('members')
       .select('id')
       .or(`email.eq.${member.email},id_number.eq.${member.idNumber}`)
@@ -67,7 +63,7 @@ export async function saveMember(member: Member, client?: any) {
 
   const passwordToSave = member.password ? await hashPassword(member.password) : undefined;
 
-  const { error } = await supabaseClient.from('members').insert({
+  const { error } = await supabase.from('members').insert({
       id: member.id,
       full_name: member.fullName,
       email: member.email,
