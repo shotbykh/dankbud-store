@@ -39,7 +39,7 @@ export default function ApplyPage() {
         const result = await res.json();
 
         if (!res.ok) {
-            setServerError(result.message || "Something went wrong.");
+            setServerError(result.error || result.message || "Server Error: " + res.status);
             setIsSubmitting(false);
             return;
         }
