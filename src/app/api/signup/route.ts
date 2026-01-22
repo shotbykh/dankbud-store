@@ -6,11 +6,11 @@ import { EmailService } from '@/lib/email';
 
 export async function POST(req: Request) {
     try {
+        console.log(">>> SIGNUP START <<<");
         const body = await req.json();
         const { email, password, fullName, idNumber, phone } = body;
+        console.log("Signup Payload:", { email, fullName, idNumber, phone });
 
-        // 1. Init Supabase Admin (or just Server Client)
-        // We use createServerClient to use valid API interaction
         const cookieStore = await cookies();
         const supabase = createServerClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,50 +24,64 @@ export async function POST(req: Request) {
             }
         );
 
-        // 2. Sign Up User (Triggers Email if Enabled in Supabase Dashboard)
+        console.log("Signup: Calling Supabase Auth...");
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
             password,
             options: {
-                data: { full_name: fullName, id_number: idNumber, phone }, // Store meta in Auth too
+                data: { full_name: fullName, id_number: idNumber, phone }, 
             }
         });
 
         if (authError) {
+            console.error("Signup: Auth Error!", authError);
             return NextResponse.json({ message: authError.message }, { status: 400 });
         }
 
         if (!authData.user) {
+            console.error("Signup: No User Returned from Auth!");
             return NextResponse.json({ message: "Auth creation failed." }, { status: 500 });
         }
+        
+        console.log("Signup: Auth Success. User ID:", authData.user.id);
 
-        // 3. Create Member Record (Linked to Auth ID)
-        // Note: authData.user.id is the UUID from Auth
-        await saveMember({
-            id: authData.user.id, // VITAL: Link IDs
-            email: email,
-            fullName: fullName,
-            idNumber: idNumber,
-            phone: phone,
-            status: 'PENDING', // Default pending until email confirmed? Or APPROVED? 
-            // If email confirm is on, they can't login anyway.
-            // Let's set to APPROVED so once they verify email, they are good.
-            // OR keep PENDING if you want manual approval too?
-            // "Normal flow" implies email verify = access.
-            joinedAt: new Date().toISOString(),
-            totalSpent: 0
-        });
+        console.log("Signup: Saving to DB...");
+        try {
+            await saveMember({
+                id: authData.user.id,
+                email: email,
+                fullName: fullName,
+                idNumber: idNumber,
+                phone: phone,
+                status: 'PENDING',
+                joinedAt: new Date().toISOString(),
+                totalSpent: 0
+            });
+            console.log("Signup: DB Save Success.");
+        } catch (dbErr) {
+             console.error("Signup: DB Save Failed!", dbErr);
+             throw dbErr;
+        }
 
-        // 4. Notify Staff
-        await EmailService.sendStaffNotification(
-            "New Sign Up",
-            `New User: ${fullName} (${email}). Check Members list.`
-        );
+        console.log("Signup: Notifying Staff...");
+        try {
+            await EmailService.sendStaffNotification(
+                "New Sign Up",
+                `New User: ${fullName} (${email}). Check Members list.`
+            );
+             console.log("Signup: Staff Email Sent.");
+        } catch (e) { console.error("Signup: Staff Email Failed", e); }
+
+        console.log("Signup: Sending Welcome Email...");
+        try {
+            await EmailService.sendWelcomeEmail(email, fullName);
+            console.log("Signup: Welcome Email Sent.");
+        } catch (e) { console.error("Signup: Welcome Email Failed", e); }
 
         return NextResponse.json({ success: true });
 
     } catch (err: any) {
-        console.error("Signup Error:", err);
+        console.error("Signup CRITICAL EXCEPTION:", err);
         return NextResponse.json({ message: err.message || "Server Error" }, { status: 500 });
     }
 }

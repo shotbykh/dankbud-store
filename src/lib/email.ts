@@ -2,7 +2,6 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// FROM: must be a verified sender in Resend dashboard
 const FROM_EMAIL = 'DankBud Orders <orders@dankbud.co.za>';
 
 export const EmailService = {
@@ -27,7 +26,7 @@ export const EmailService = {
                 <div style="font-family: monospace; background: #000; color: #facc15; padding: 20px;">
                     <h1 style="text-transform: uppercase;">Order Dispatched!</h1>
                     <p>Hi ${memberName},</p>
-                    <p>Your stash for <strong>Order #${orderId}</strong> is on its way.</p>
+                    <p>Your stash for <strong>Order #${orderId}</strong> is on its way via PUDO.</p>
                     
                     <div style="border: 2px solid #facc15; padding: 15px; margin: 20px 0;">
                         <h2 style="margin-top: 0;">🔐 YOUR COLLECTION PIN</h2>
@@ -43,11 +42,6 @@ export const EmailService = {
                             Track Package
                         </a>
                     </p>
-
-                    <p style="margin-top: 30px; font-size: 12px; opacity: 0.7;">
-                        Enter the PIN above at the PUDO locker touch screen to open the door.<br/>
-                        If you chose "To Door" delivery, the driver will contact you.
-                    </p>
                 </div>
             `
             });
@@ -57,14 +51,61 @@ export const EmailService = {
         }
     },
 
+    async sendOrderConfirmation(
+        toEmail: string,
+        memberName: string,
+        orderId: string,
+        total: number,
+        items: any[]
+    ) {
+        if (!process.env.RESEND_API_KEY) return;
+
+        try {
+            const itemsHtml = items.map(item => `
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 10px 0;">
+                    <div>${item.quantity}x ${item.name}</div>
+                    <div>R${item.price * item.quantity}</div>
+                </div>
+            `).join('');
+
+            await resend.emails.send({
+                from: FROM_EMAIL,
+                to: toEmail,
+                subject: `🔥 Order #${orderId} Confirmed`,
+                html: `
+                <div style="background-color: #000000; color: #facc15; font-family: 'Courier New', monospace; padding: 40px 20px;">
+                    <h1 style="border-bottom: 4px solid #facc15; padding-bottom: 10px; text-transform: uppercase;">Order Secured</h1>
+                    <p>Yo ${memberName},</p>
+                    <p>We received your order <strong>#${orderId}</strong>.</p>
+                    <p>Sit tight. We are processing it now.</p>
+
+                    <div style="background: #111; padding: 20px; margin: 20px 0; border: 1px solid #333;">
+                        <h3 style="margin-top: 0; border-bottom: 1px solid #555; padding-bottom: 5px;">STASH LIST</h3>
+                        ${itemsHtml}
+                        <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 20px; font-weight: bold;">
+                            <div>TOTAL</div>
+                            <div>R${total}</div>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 12px; color: #666;">
+                        You will receive another email when we dispatch via PUDO or when it's ready for collection.
+                    </p>
+                </div>
+                `
+            });
+            console.log(`📧 [Email] Sent Order Confirmation to ${toEmail}`);
+        } catch (e) {
+            console.error("❌ [Email-OrderConf] Failed:", e);
+        }
+    },
+
     async sendAdminAlert(
         orderId: string,
         pudoDetails: { pin: string; waybill: string },
         memberName: string
     ) {
         if (!process.env.RESEND_API_KEY) return;
-
-        // Send to Admin (Env or Hardcoded default)
         const adminEmail = process.env.ADMIN_EMAIL || 'shotbykh@gmail.com';
 
         try {
@@ -72,19 +113,9 @@ export const EmailService = {
                 from: FROM_EMAIL,
                 to: adminEmail,
                 subject: `📦 [ADMIN] PUDO Booked for #${orderId}`,
-                html: `
-                <h1>PUDO Shipment Created</h1>
-                <p>Order: <strong>#${orderId}</strong></p>
-                <p>Member: ${memberName}</p>
-                <p>Waybill: ${pudoDetails.waybill}</p>
-                <p>PIN: ${pudoDetails.pin}</p>
-                <hr/>
-                <p>Drop off the package at your source terminal (Miramar or as configured).</p>
-            `
+                html: `<p>PUDO Booked for Order #${orderId} (Item Dispatched).</p>`
             });
-        } catch (e) {
-            console.error("❌ [Email-Admin] Failed:", e);
-        }
+        } catch (e) { console.error(e); }
     },
 
     async sendStaffNotification(
@@ -92,7 +123,6 @@ export const EmailService = {
         message: string
     ) {
         if (!process.env.RESEND_API_KEY) return;
-
         const adminEmail = process.env.ADMIN_EMAIL || 'shotbykh@gmail.com';
 
         try {
@@ -104,8 +134,6 @@ export const EmailService = {
                   <div style="font-family: sans-serif; padding: 20px;">
                       <h1>Staff Notification</h1>
                       <p>${message}</p>
-                      <hr/>
-                      <p style="font-size: 12px; opacity: 0.5;">DankBud Automator</p>
                   </div>
               `
             });
@@ -124,39 +152,11 @@ export const EmailService = {
                 subject: `🍄 Welcome to the Club, ${memberName}`,
                 html: `
                 <div style="background-color: #000000; color: #facc15; font-family: 'Courier New', Courier, monospace; padding: 40px 20px; text-align: center;">
-                    
-                    <!-- HERO: LOGO / HEADER -->
-                    <div style="border: 4px solid #facc15; padding: 20px; display: inline-block; margin-bottom: 30px; box-shadow: 8px 8px 0px 0px #ffffff;">
-                        <h1 style="margin: 0; font-size: 36px; text-transform: uppercase; letter-spacing: -2px;">DANKBUD</h1>
-                        <p style="margin: 5px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Private Member Club</p>
-                    </div>
-
-                    <!-- BODY COPY -->
-                    <h2 style="font-size: 24px; text-transform: uppercase; margin-bottom: 20px;">You're In.</h2>
-                    
-                    <p style="font-size: 16px; line-height: 1.6; max-width: 400px; margin: 0 auto 30px; color: #ffffff;">
-                        Welcome to the underground. Your membership has been approved. 
-                        You now have access to our curated selection of premium stash at shared member costs.
-                    </p>
-
-                    <!-- CTA BUTTON -->
-                    <a href="https://dankbud.co.za/shop" style="background-color: #facc15; color: #000000; padding: 15px 30px; font-size: 20px; font-weight: bold; text-decoration: none; text-transform: uppercase; display: inline-block; border: 4px solid #ffffff; box-shadow: 4px 4px 0px 0px #ffffff;">
-                        Enter the Shop
-                    </a>
-
-                    <!-- INFO BOX -->
-                    <div style="margin-top: 40px; border-top: 1px solid #333; padding-top: 20px;">
-                        <p style="color: #666; font-size: 12px; text-transform: uppercase;">
-                            Your Member ID is linked to this email.<br>
-                            Always use <strong>${toEmail}</strong> when checking out.
-                        </p>
-                    </div>
-
-                    <!-- FOOTER -->
-                    <p style="margin-top: 50px; font-size: 10px; color: #444;">
-                        NOT FOR PUBLIC SALE. RIGHT OF ADMISSION RESERVED.<br>
-                        PORT ELIZABETH, SOUTH AFRICA
-                    </p>
+                    <h1 style="margin: 0; font-size: 36px; text-transform: uppercase;">DANKBUD</h1>
+                    <p style="margin: 5px 0 0; font-size: 12px; text-transform: uppercase;">Private Member Club</p>
+                    <h2 style="font-size: 24px; text-transform: uppercase; margin: 20px 0;">You're In.</h2>
+                    <p style="color: #fff; max-width: 400px; margin: 0 auto 30px;">Welcome to the underground. Your membership has been approved.</p>
+                    <a href="https://dankbud.co.za/shop" style="background-color: #facc15; color: #000; padding: 15px 30px; font-weight: bold; text-decoration: none; text-transform: uppercase;">Enter Shop</a>
                 </div>
                 `
             });

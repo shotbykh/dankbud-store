@@ -41,20 +41,23 @@ export async function getMembers(): Promise<Member[]> {
       console.error("Supabase Error:", error);
       return [];
   }
-  // Map snake_case database to camelCase app
   return data.map((d: any) => ({
       ...d,
       fullName: d.full_name,
       idNumber: d.id_number,
       joinedAt: d.joined_at,
       totalSpent: d.total_spent,
-      role: d.role || 'MEMBER' // Default fallback
+      role: d.role || 'MEMBER'
   }));
 }
 
-export async function saveMember(member: Member) {
+// FIX: Accept optional client to support RLS (Auth Context)
+export async function saveMember(member: Member, client?: any) {
+  // Use passed client (Auth context) or fallback to default (Anon)
+  const supabaseClient = client || supabase;
+
   // Check duplicates
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseClient
       .from('members')
       .select('id')
       .or(`email.eq.${member.email},id_number.eq.${member.idNumber}`)
@@ -62,10 +65,9 @@ export async function saveMember(member: Member) {
       
   if (existing) throw new Error("Member already exists");
 
-  // Hash password if present
   const passwordToSave = member.password ? await hashPassword(member.password) : undefined;
 
-  const { error } = await supabase.from('members').insert({
+  const { error } = await supabaseClient.from('members').insert({
       id: member.id,
       full_name: member.fullName,
       email: member.email,
@@ -75,7 +77,6 @@ export async function saveMember(member: Member) {
       joined_at: member.joinedAt,
       total_spent: member.totalSpent,
       password: passwordToSave
-      // role defaults to MEMBER in DB, so we don't set it here for fresh signups
   });
 
   if (error) throw new Error(error.message);
@@ -85,7 +86,6 @@ export async function saveMember(member: Member) {
 export async function saveOrder(order: Order) {
   console.log("Saving Order for Member:", order.memberId);
 
-  // If PUDO, ensure address contains the terminal info
   const addressPayload = order.deliveryMethod === 'PUDO' 
       ? { ...order.address, pudoTerminal: order.address.pudoTerminal } 
       : order.address;
@@ -98,7 +98,7 @@ export async function saveOrder(order: Order) {
       status: order.status,
       payment_method: order.paymentMethod,
       delivery_method: order.deliveryMethod,
-      address: addressPayload, // stored as jsonb
+      address: addressPayload,
       created_at: order.createdAt
   });
   
@@ -150,7 +150,7 @@ export async function logAdminAction(adminId: string, action: string, details?: 
     const { error } = await supabase
         .from('audit_logs')
         .insert({
-            admin_id: adminId, // This is TEXT now to match members.id
+            admin_id: adminId,
             action,
             details
         });
@@ -159,7 +159,6 @@ export async function logAdminAction(adminId: string, action: string, details?: 
 }
 
 export async function getAuditLogs() {
-    // Select Audit Logs and JOIN with Members to get the Admin's name
     const { data, error } = await supabase
         .from('audit_logs')
         .select(`
@@ -170,14 +169,13 @@ export async function getAuditLogs() {
             )
         `)
         .order('created_at', { ascending: false })
-        .limit(50); // Show last 50 actions
+        .limit(50);
 
     if (error) {
         console.error("Fetch Audit Logs Error:", error);
         return [];
     }
 
-    // Flatten logic slightly for easier UI consumption
     return data.map((log: any) => ({
         id: log.id,
         adminName: log.members?.full_name || 'System',
