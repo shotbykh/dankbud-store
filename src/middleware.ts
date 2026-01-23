@@ -68,11 +68,11 @@ export async function middleware(request: NextRequest) {
         }
 
         // If logged in but NOT the Boss
-        // const adminEmail = process.env.ADMIN_EMAIL || 'shotbykh@gmail.com';
+        const adminEmail = process.env.ADMIN_EMAIL || 'shotbykh@gmail.com';
         // Normalize comparison to avoid casing issues
-        // if (user.email?.toLowerCase() !== adminEmail.toLowerCase()) {
-        //     return NextResponse.redirect(new URL('/', request.url))
-        // }
+        if (user.email?.toLowerCase() !== adminEmail.toLowerCase()) {
+            return NextResponse.redirect(new URL('/', request.url))
+        }
 
         // NOTE: For now, I will comment out the strict "Email Check" to prevent locking YOU out 
         // if you log in with a different email during testing. 
