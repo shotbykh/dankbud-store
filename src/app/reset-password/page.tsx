@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from '@supabase/ssr';
 
-export default function UpdatePasswordPage() {
+export default function ResetPasswordPage() {
     const router = useRouter();
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
@@ -38,7 +38,7 @@ export default function UpdatePasswordPage() {
     return (
         <div className="min-h-screen bg-[#facc15] flex items-center justify-center p-4">
             <div className="bg-white p-8 border-4 border-black max-w-md w-full shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
-                <h1 className="text-3xl font-black uppercase text-center mb-6">New Password</h1>
+                <h1 className="text-3xl font-black uppercase text-center mb-6">Reset Password</h1>
 
                 {error && (
                     <div className="bg-red-100 border-2 border-red-500 text-red-800 p-3 font-bold text-center mb-4">
@@ -48,7 +48,7 @@ export default function UpdatePasswordPage() {
 
                 <form onSubmit={handleUpdate} className="space-y-6">
                     <div>
-                        <label className="block font-bold uppercase text-xs mb-1">Set New Password</label>
+                        <label className="block font-bold uppercase text-xs mb-1">Set Reset Password</label>
                         <input
                             type="password"
                             required
