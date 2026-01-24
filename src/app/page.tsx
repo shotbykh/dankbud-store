@@ -1,18 +1,33 @@
-'use client';
+"use client";
 
 import LiquidButton from "@/components/ui/LiquidButton";
 import AgeGate from "@/components/ui/AgeGate";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import BentoGrid from "@/components/ui/BentoGrid";
+import { createClient } from "@/lib/supabase-client";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [isMember, setIsMember] = useState(false);
+  const supabase = createClient();
+  const router = useRouter();
 
   useEffect(() => {
+    // 1. Check Old Session
     const session = localStorage.getItem("dankbud-session");
     if (session) setIsMember(true);
-  }, []);
+
+    // 2. Auth Listener (Handles Password Reset Redirects)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'PASSWORD_RECOVERY') {
+            console.log("Recovery Event Detected!");
+            router.push('/admin/update-password');
+        }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase, router]);
 
   return (
     <main className="min-h-screen relative overflow-x-hidden bg-[#facc15]"> 
@@ -21,7 +36,6 @@ export default function Home() {
       <div className="min-h-screen w-full relative flex flex-col items-center justify-center p-8 md:p-12">
         
         {/* TEXT HERO - FLUID TYPOGRAPHY */}
-        {/* Changed md:text-[14rem] to xl:text-[400px] or just kept it purely fluid to ensure it ALWAYS fits */}
         <div className="relative z-10 w-full flex flex-col items-center justify-center select-none mix-blend-normal py-10">
             <h1 className="font-archivo font-black uppercase tracking-tighter text-black leading-none whitespace-nowrap transform scale-y-[1.1] origin-center -mb-4 md:-mb-8 text-[13vw]">
                 DANKBUD
