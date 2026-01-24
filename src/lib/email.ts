@@ -167,7 +167,7 @@ export const EmailService = {
     }
 
 
-    async sendPasswordChangedNotification(toEmail: string, memberName: string) {
+,    async sendPasswordChangedNotification(toEmail: string, memberName: string) {
         if (!process.env.RESEND_API_KEY) return;
 
         try {

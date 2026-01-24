@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from '@supabase/ssr';
-import Link from 'next/link';
 
 export default function ResetPasswordPage() {
     const router = useRouter();
