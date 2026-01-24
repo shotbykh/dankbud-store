@@ -1,39 +1,40 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase-client";
 
 export default function AdminLoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const supabase = createClient();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        // Success
-        router.push('/admin');
-        router.refresh();
-      } else {
-        setError(data.message || 'Access Denied');
+      if (authError) {
+        setError(authError.message);
         setLoading(false);
+        return;
       }
+
+      // Success! Middleware will handle the session check on next navigation.
+      router.push("/admin");
+      router.refresh();
+
     } catch (err) {
-      setError('Network error');
+      setError("An unexpected error occurred.");
       setLoading(false);
     }
   };
@@ -43,7 +44,7 @@ export default function AdminLoginPage() {
       <div className="bg-white p-8 md:p-12 max-w-md w-full border-4 border-[#facc15] shadow-[0_0_20px_rgba(250,204,21,0.3)]">
         <div className="text-center mb-8">
             <h1 className="text-4xl font-archivo uppercase text-black">Staff Portal</h1>
-            <p className="font-mono text-sm text-gray-500 mt-2">DankBud Backoffice</p>
+            <p className="font-mono text-sm text-gray-500 mt-2">DankBud Backoffice (Secure)</p>
         </div>
 
         {error && (
@@ -80,7 +81,7 @@ export default function AdminLoginPage() {
                 disabled={loading}
                 className="w-full py-4 bg-black text-[#facc15] text-xl font-black uppercase hover:bg-[#d946ef] hover:text-white transition-colors border-2 border-transparent"
             >
-                {loading ? 'Verifying...' : 'Access Console'}
+                {loading ? "Verifying..." : "Access Console"}
             </button>
         </form>
       </div>
