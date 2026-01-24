@@ -34,7 +34,7 @@ export default function UpdatePasswordPage() {
         <h1 className="text-2xl font-black uppercase mb-4">Set New Password</h1>
         
         {message && (
-            <div className={}>
+            <div className="bg-yellow-100 border border-yellow-500 text-yellow-800 p-2 mb-4">
                 {message}
             </div>
         )}
