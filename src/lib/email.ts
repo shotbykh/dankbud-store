@@ -166,4 +166,34 @@ export const EmailService = {
         }
     }
 
+
+    async sendPasswordChangedNotification(toEmail: string, memberName: string) {
+        if (!process.env.RESEND_API_KEY) return;
+
+        try {
+            await resend.emails.send({
+                from: FROM_EMAIL,
+                to: toEmail,
+                subject: `🔐 Security Alert: Password Changed`,
+                html: `
+                <div style="background-color: #000000; color: #facc15; font-family: 'Courier New', Courier, monospace; padding: 40px 20px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 36px; text-transform: uppercase;">DANKBUD</h1>
+                    <p style="margin: 5px 0 0; font-size: 12px; text-transform: uppercase;">Security Alert</p>
+                    <h2 style="font-size: 24px; text-transform: uppercase; margin: 20px 0;">Password Reset.</h2>
+                    <p style="color: #fff; max-width: 400px; margin: 0 auto 30px;">
+                        Yo ${memberName}, your password was just changed. 
+                        If this was you, you're good. If not, contact support immediately.
+                    </p>
+                    <a href="https://dankbud.co.za/shop" style="background-color: #facc15; color: #000; padding: 15px 30px; font-weight: bold; text-decoration: none; text-transform: uppercase;">Enter Shop</a>
+                    <p style="color: #666; font-size: 10px; margin-top: 30px;">
+                        Device: ${new Date().toISOString()}
+                    </p>
+                </div>
+                `
+            });
+            console.log(`📧 [Email] Sent PASSWORD CHANGED to ${toEmail}`);
+        } catch (e) {
+            console.error("❌ [Email-PwdChanged] Failed:", e);
+        }
+    }
 };
