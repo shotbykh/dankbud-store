@@ -27,12 +27,16 @@ export default function ForgotPasswordPage() {
             });
 
             if (error) {
-                setError(error.message);
+                // Handle different error formats
+                const errorMsg = error.message || error.msg || JSON.stringify(error);
+                console.error("Reset password error:", error);
+                setError(errorMsg);
             } else {
                 setMessage("Check your email for the password reset link.");
             }
         } catch (err: any) {
-            setError("Network error.");
+            console.error("Network error:", err);
+            setError(err.message || "Network error. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -55,7 +59,7 @@ export default function ForgotPasswordPage() {
                 ) : (
                     <form onSubmit={handleReset} className="space-y-6">
                         {error && (
-                            <div className="bg-red-100 border-2 border-red-500 text-red-800 p-3 font-bold text-center">
+                            <div className="bg-red-100 border-2 border-red-500 text-red-800 p-3 font-bold text-center text-sm">
                                 {error}
                             </div>
                         )}
