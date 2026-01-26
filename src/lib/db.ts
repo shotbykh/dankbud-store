@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase, supabaseAdmin } from './supabase';
 import { hashPassword } from './auth';
 
 export interface Member {
@@ -36,7 +36,7 @@ export interface Order {
 // --- SUPABASE API ---
 
 export async function getMembers(): Promise<Member[]> {
-  const { data, error } = await supabase.from('members').select('*');
+  const { data, error } = await supabaseAdmin.from('members').select('*');
   if (error) {
       console.error("Supabase Error:", error);
       return [];
@@ -106,7 +106,7 @@ export async function saveOrder(order: Order) {
 }
 
 export async function getOrders(): Promise<Order[]> {
-    const { data, error } = await supabase.from('orders').select('*');
+    const { data, error } = await supabaseAdmin.from('orders').select('*');
     if (error) return [];
     
     return data.map((d: any) => ({
@@ -183,7 +183,7 @@ export async function getAuditLogs() {
 }
 
 export async function getOrder(id: string): Promise<Order | null> {
-    const { data, error } = await supabase.from('orders').select('*').eq('id', id).single();
+    const { data, error } = await supabaseAdmin.from('orders').select('*').eq('id', id).single();
     if (error || !data) return null;
     
     return {
