@@ -1,7 +1,7 @@
 'use client';
 
 import { useCart } from "@/context/CartContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LockerSelector from "@/components/shop/LockerSelector";
@@ -12,7 +12,6 @@ const RATES = {
     COLLECTION: 0,
     PUDO_LOCKER: 60,      // L2L (Locker to Locker)
     PUDO_DOOR: 100,       // L2D (Locker to Door)
-    LOCAL_DELIVERY: 0     // Dynamic: Uber quote + R10
 };
 
 // Types
@@ -31,6 +30,13 @@ interface PudoTerminal {
     latitude: string;
     longitude: string;
     status: string;
+}
+
+interface DeliveryQuote {
+    distance_km: number | null;
+    delivery_fee: number;
+    duration_text?: string;
+    loading?: boolean;
 }
 
 export default function CheckoutPage() {
@@ -58,20 +64,62 @@ export default function CheckoutPage() {
     const [suburbStatus, setSuburbStatus] = useState<DeliveryAreaStatus>('allowed');
     const [suburbMessage, setSuburbMessage] = useState('');
 
-    // Check suburb when it changes
+    // Delivery quote for local delivery
+    const [deliveryQuote, setDeliveryQuote] = useState<DeliveryQuote | null>(null);
+
+    // Debounce timer ref
+    const [quoteTimeout, setQuoteTimeout] = useState<NodeJS.Timeout | null>(null);
+
+    // Check suburb and get delivery quote when address changes
     useEffect(() => {
         if (formData.suburb && deliveryType === 'LOCAL') {
             const status = checkDeliveryArea(formData.suburb);
             setSuburbStatus(status);
             setSuburbMessage(getDeliveryAreaMessage(status));
+            
+            // Clear previous timeout
+            if (quoteTimeout) clearTimeout(quoteTimeout);
+
+            // Fetch delivery quote if address is complete and not blocked
+            if (status !== 'blocked' && formData.street && formData.code) {
+                setDeliveryQuote({ distance_km: null, delivery_fee: 0, loading: true });
+                
+                // Debounce API call
+                const timeout = setTimeout(() => {
+                    fetch('/api/delivery/quote', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ address: formData })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        setDeliveryQuote({
+                            distance_km: data.distance_km,
+                            delivery_fee: data.delivery_fee || 80,
+                            duration_text: data.duration_text,
+                            loading: false
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Quote error:', err);
+                        setDeliveryQuote({ distance_km: null, delivery_fee: 80, loading: false });
+                    });
+                }, 800);
+                setQuoteTimeout(timeout);
+            } else {
+                setDeliveryQuote(null);
+            }
         } else {
             setSuburbStatus('allowed');
             setSuburbMessage('');
+            setDeliveryQuote(null);
         }
-    }, [formData.suburb, deliveryType]);
+    }, [formData.suburb, formData.street, formData.code, deliveryType]);
 
     // Derived Shipping Cost
-    const shippingCost = mainMethod === 'COLLECTION' ? 0 : (deliveryType === 'PUDO' ? RATES.PUDO_LOCKER : RATES.LOCAL_DELIVERY);
+    const shippingCost = mainMethod === 'COLLECTION' ? 0 : 
+        (deliveryType === 'PUDO' ? RATES.PUDO_LOCKER : 
+         deliveryQuote?.delivery_fee ?? 0);
 
     // Auto-switch payment if switching to Delivery (Cash not allowed)
     useEffect(() => {
@@ -104,13 +152,19 @@ export default function CheckoutPage() {
             return;
         }
 
+        // Block if local delivery but no quote yet
+        if (deliveryType === 'LOCAL' && (!deliveryQuote || deliveryQuote.loading)) {
+            setError('Please wait for delivery quote to calculate.');
+            setLoading(false);
+            return;
+        }
+
         let backendDeliveryMethod = 'COLLECTION';
         let orderStatus = 'PENDING';
         
         if (mainMethod === 'DELIVERY') {
             if (deliveryType === 'LOCAL') {
                 backendDeliveryMethod = 'DELIVERY';
-                // If review required, set special status
                 if (suburbStatus === 'review') {
                     orderStatus = 'REVIEW_REQUIRED';
                 }
@@ -145,7 +199,10 @@ export default function CheckoutPage() {
                 body: JSON.stringify({
                     items,
                     total: finalTotal,
-                    address: formData,
+                    address: {
+                        ...formData,
+                        deliveryQuote: deliveryQuote // Include quote info
+                    },
                     paymentMethod,
                     deliveryMethod: backendDeliveryMethod,
                     status: orderStatus,
@@ -251,7 +308,7 @@ export default function CheckoutPage() {
                                     <button type="button" onClick={() => setDeliveryType('LOCAL')} className={`p-2 md:p-3 border-2 border-black font-bold uppercase text-xs md:text-sm transition-all flex flex-col items-center justify-center gap-1 ${deliveryType === 'LOCAL' ? 'bg-[#facc15] text-black' : 'bg-white text-gray-500'}`}>
                                         <span className="text-xl">🏠</span>
                                         <span>Local (PE)</span>
-                                        <span className="text-[10px]">30-60 min • R60</span>
+                                        <span className="text-[10px]">30-60 min</span>
                                     </button>
                                     <button type="button" onClick={() => setDeliveryType('PUDO')} className={`p-2 md:p-3 border-2 border-black font-bold uppercase text-xs md:text-sm transition-all flex flex-col items-center justify-center gap-1 ${deliveryType === 'PUDO' ? 'bg-[#facc15] text-black' : 'bg-white text-gray-500'}`}>
                                         <span className="text-xl">🔐</span>
@@ -346,6 +403,31 @@ export default function CheckoutPage() {
                                     </div>
                                 )}
 
+                                {/* DELIVERY QUOTE DISPLAY */}
+                                {deliveryQuote && (
+                                    <div className={`p-4 border-2 ${deliveryQuote.loading ? 'bg-gray-100 border-gray-300' : 'bg-green-100 border-green-500'}`}>
+                                        {deliveryQuote.loading ? (
+                                            <div className="text-center text-gray-500 animate-pulse">
+                                                🚗 Calculating delivery cost...
+                                            </div>
+                                        ) : (
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <div className="font-bold text-green-700">🚗 Delivery Quote</div>
+                                                    {deliveryQuote.distance_km && (
+                                                        <div className="text-sm text-gray-600">
+                                                            {deliveryQuote.distance_km} km • {deliveryQuote.duration_text}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="text-2xl font-black text-green-700">
+                                                    R{deliveryQuote.delivery_fee}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                                 <div>
                                     <label className="block font-bold uppercase text-xs mb-1">Instructions (Optional)</label>
                                     <textarea
@@ -413,7 +495,7 @@ export default function CheckoutPage() {
                                         disabled={mainMethod === 'DELIVERY'}
                                         className="hidden"
                                     />
-                                    <span className="text-3xl mb-2">��</span>
+                                    <span className="text-3xl mb-2">💵</span>
                                     <span className="font-bold uppercase text-center text-sm">Cash on Drop</span>
                                     {mainMethod === 'DELIVERY' && <span className="text-[10px] text-red-600 font-bold mt-1 uppercase">Collection Only</span>}
                                 </label>
@@ -442,7 +524,7 @@ export default function CheckoutPage() {
 
                         <button
                             type="submit"
-                            disabled={loading || (deliveryType === 'LOCAL' && suburbStatus === 'blocked')}
+                            disabled={loading || (deliveryType === 'LOCAL' && suburbStatus === 'blocked') || (deliveryType === 'LOCAL' && deliveryQuote?.loading)}
                             className="w-full py-5 bg-black text-[#facc15] text-3xl font-archivo uppercase hover:bg-[#d946ef] hover:text-white transition-colors border-4 border-transparent hover:border-black mt-8 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden"
                         >
                             <span className="relative z-10">{loading ? 'Processing...' : `Place Order & Pay R${finalTotal}`}</span>
@@ -478,7 +560,9 @@ export default function CheckoutPage() {
                         {/* SHIPPING COST ROW */}
                         <div className="mt-4 pt-4 border-t border-white/20 flex justify-between items-center">
                             <span className="font-bold text-sm uppercase opacity-75">Delivery</span>
-                            <span className="font-mono text-xl">{shippingCost === 0 ? 'FREE' : `R${shippingCost}`}</span>
+                            <span className="font-mono text-xl">
+                                {shippingCost === 0 ? (deliveryType === 'LOCAL' && mainMethod === 'DELIVERY' ? 'Calculating...' : 'FREE') : `R${shippingCost}`}
+                            </span>
                         </div>
 
                         <div className="mt-6 pt-4 border-t-2 border-[#facc15] flex justify-between items-end">
