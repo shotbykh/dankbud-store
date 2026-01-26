@@ -5,12 +5,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LockerSelector from "@/components/shop/LockerSelector";
+import { checkDeliveryArea, getDeliveryAreaMessage, type DeliveryAreaStatus } from "@/lib/delivery-areas";
 
 // RATES
 const RATES = {
     COLLECTION: 0,
     PUDO_LOCKER: 60,
-    PUDO_DOOR: 100
+    LOCAL_DELIVERY: 60 // Base rate, can be dynamic later
 };
 
 // Types
@@ -47,13 +48,29 @@ export default function CheckoutPage() {
 
     const [paymentMethod, setPaymentMethod] = useState<'EFT' | 'CASH' | 'ONLINE'>('ONLINE');
 
-    // Logic
+    // Delivery method states
     const [mainMethod, setMainMethod] = useState<'DELIVERY' | 'COLLECTION'>('DELIVERY');
-    const [pudoType, setPudoType] = useState<'DOOR' | 'LOCKER'>('LOCKER');
+    const [deliveryType, setDeliveryType] = useState<'LOCAL' | 'PUDO'>('PUDO');
     const [selectedLocker, setSelectedLocker] = useState<PudoTerminal | null>(null);
 
+    // Suburb validation
+    const [suburbStatus, setSuburbStatus] = useState<DeliveryAreaStatus>('allowed');
+    const [suburbMessage, setSuburbMessage] = useState('');
+
+    // Check suburb when it changes
+    useEffect(() => {
+        if (formData.suburb && deliveryType === 'LOCAL') {
+            const status = checkDeliveryArea(formData.suburb);
+            setSuburbStatus(status);
+            setSuburbMessage(getDeliveryAreaMessage(status));
+        } else {
+            setSuburbStatus('allowed');
+            setSuburbMessage('');
+        }
+    }, [formData.suburb, deliveryType]);
+
     // Derived Shipping Cost
-    const shippingCost = mainMethod === 'COLLECTION' ? 0 : (pudoType === 'LOCKER' ? RATES.PUDO_LOCKER : RATES.PUDO_DOOR);
+    const shippingCost = mainMethod === 'COLLECTION' ? 0 : (deliveryType === 'PUDO' ? RATES.PUDO_LOCKER : RATES.LOCAL_DELIVERY);
 
     // Auto-switch payment if switching to Delivery (Cash not allowed)
     useEffect(() => {
@@ -79,9 +96,26 @@ export default function CheckoutPage() {
         setLoading(true);
         setError('');
 
+        // Block if suburb is blocked
+        if (deliveryType === 'LOCAL' && suburbStatus === 'blocked') {
+            setError('Delivery to this area is not available. Please choose PUDO or Collection.');
+            setLoading(false);
+            return;
+        }
+
         let backendDeliveryMethod = 'COLLECTION';
+        let orderStatus = 'PENDING';
+        
         if (mainMethod === 'DELIVERY') {
-            backendDeliveryMethod = pudoType === 'DOOR' ? 'DELIVERY' : 'PUDO';
+            if (deliveryType === 'LOCAL') {
+                backendDeliveryMethod = 'DELIVERY';
+                // If review required, set special status
+                if (suburbStatus === 'review') {
+                    orderStatus = 'REVIEW_REQUIRED';
+                }
+            } else {
+                backendDeliveryMethod = 'PUDO';
+            }
         }
 
         if (backendDeliveryMethod === 'PUDO' && !selectedLocker) {
@@ -109,10 +143,11 @@ export default function CheckoutPage() {
                 },
                 body: JSON.stringify({
                     items,
-                    total: finalTotal, // Send Final Total with Shipping
+                    total: finalTotal,
                     address: formData,
                     paymentMethod,
                     deliveryMethod: backendDeliveryMethod,
+                    status: orderStatus,
                     pudoTerminal: selectedLocker ? { id: selectedLocker.code || selectedLocker.id || 'UNKNOWN', name: selectedLocker.name } : null
                 })
             });
@@ -126,7 +161,7 @@ export default function CheckoutPage() {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
-                                amount: finalTotal, // Charge Final Total
+                                amount: finalTotal,
                                 orderId: data.orderId,
                                 cartItems: items
                             })
@@ -195,7 +230,7 @@ export default function CheckoutPage() {
                             </div>
                         )}
 
-                        {/* MAIN METHOD TOGGLE - RESPONSIVE FIX */}
+                        {/* MAIN METHOD TOGGLE */}
                         <div className="grid grid-cols-2 gap-2 md:gap-4 mb-4">
                             <button type="button" onClick={() => setMainMethod('DELIVERY')} className={`p-2 md:p-4 border-2 md:border-4 border-black font-black uppercase text-sm md:text-xl transition-all flex flex-col items-center justify-center gap-1 md:gap-2 ${mainMethod === 'DELIVERY' ? 'bg-black text-[#facc15]' : 'bg-white hover:bg-gray-100'}`}>
                                 <span className="text-center w-full leading-tight">DELIVERY</span>
@@ -212,20 +247,22 @@ export default function CheckoutPage() {
                             <div className="bg-gray-100 p-2 md:p-4 border-2 border-gray-200 animate-in fade-in slide-in-from-top-2 mb-6">
                                 <p className="font-bold uppercase text-[10px] md:text-xs mb-2 text-center text-gray-500">Select Delivery Type</p>
                                 <div className="grid grid-cols-2 gap-2">
-                                    <button type="button" onClick={() => setPudoType('LOCKER')} className={`p-2 md:p-3 border-2 border-black font-bold uppercase text-xs md:text-sm transition-all flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 ${pudoType === 'LOCKER' ? 'bg-[#facc15] text-black' : 'bg-white text-gray-500'}`}>
-                                        <span className="text-xl">🔐</span>
-                                        <span>PUDO Locker (+R60)</span>
-                                    </button>
-                                    <button type="button" onClick={() => setPudoType('DOOR')} className={`p-2 md:p-3 border-2 border-black font-bold uppercase text-xs md:text-sm transition-all flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 ${pudoType === 'DOOR' ? 'bg-[#facc15] text-black' : 'bg-white text-gray-500'}`}>
+                                    <button type="button" onClick={() => setDeliveryType('LOCAL')} className={`p-2 md:p-3 border-2 border-black font-bold uppercase text-xs md:text-sm transition-all flex flex-col items-center justify-center gap-1 ${deliveryType === 'LOCAL' ? 'bg-[#facc15] text-black' : 'bg-white text-gray-500'}`}>
                                         <span className="text-xl">🏠</span>
-                                        <span>Local Delivery (+R100)</span>
+                                        <span>Local (PE)</span>
+                                        <span className="text-[10px]">30-60 min • R60</span>
+                                    </button>
+                                    <button type="button" onClick={() => setDeliveryType('PUDO')} className={`p-2 md:p-3 border-2 border-black font-bold uppercase text-xs md:text-sm transition-all flex flex-col items-center justify-center gap-1 ${deliveryType === 'PUDO' ? 'bg-[#facc15] text-black' : 'bg-white text-gray-500'}`}>
+                                        <span className="text-xl">🔐</span>
+                                        <span>PUDO Locker</span>
+                                        <span className="text-[10px]">Nationwide • R60</span>
                                     </button>
                                 </div>
                             </div>
                         )}
 
-                        {/* LOCKER SELECTOR */}
-                        {mainMethod === 'DELIVERY' && pudoType === 'LOCKER' && (
+                        {/* LOCKER SELECTOR (PUDO) */}
+                        {mainMethod === 'DELIVERY' && deliveryType === 'PUDO' && (
                             <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
                                 <h3 className="text-2xl font-black uppercase font-archivo border-b-2 border-black pb-2">Choose Locker</h3>
                                 <p className="text-sm font-mono text-gray-600">Secure, anonymous collection from a locker near you.</p>
@@ -248,10 +285,11 @@ export default function CheckoutPage() {
                             </div>
                         )}
 
-                        {/* ADDRESS FORM (For Door Delivery) */}
-                        {mainMethod === 'DELIVERY' && pudoType === 'DOOR' && (
+                        {/* ADDRESS FORM (For Local Delivery) */}
+                        {mainMethod === 'DELIVERY' && deliveryType === 'LOCAL' && (
                             <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
                                 <h3 className="text-2xl font-black uppercase font-archivo border-b-2 border-black pb-2">Delivery Address</h3>
+                                <p className="text-sm font-mono text-gray-600">Fast local delivery within Port Elizabeth (30-60 min).</p>
 
                                 <div>
                                     <label className="block font-bold uppercase text-xs mb-1">Street Address</label>
@@ -275,8 +313,12 @@ export default function CheckoutPage() {
                                             value={formData.suburb}
                                             onChange={handleChange}
                                             type="text"
-                                            className="w-full bg-[#f3f4f6] border-2 border-black p-3 font-mono focus:bg-[#facc15] outline-none"
-                                            placeholder="Summerstrand"
+                                            className={`w-full border-2 p-3 font-mono outline-none transition-colors ${
+                                                suburbStatus === 'blocked' ? 'bg-red-100 border-red-500' :
+                                                suburbStatus === 'review' ? 'bg-orange-100 border-orange-500' :
+                                                'bg-[#f3f4f6] border-black focus:bg-[#facc15]'
+                                            }`}
+                                            placeholder="Walmer"
                                         />
                                     </div>
                                     <div>
@@ -288,21 +330,20 @@ export default function CheckoutPage() {
                                             onChange={handleChange}
                                             type="text"
                                             className="w-full bg-[#f3f4f6] border-2 border-black p-3 font-mono focus:bg-[#facc15] outline-none"
-                                            placeholder="6001"
+                                            placeholder="6070"
                                         />
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label className="block font-bold uppercase text-xs mb-1">City</label>
-                                    <input
-                                        disabled
-                                        type="text"
-                                        value={formData.city}
-                                        className="w-full bg-gray-200 border-2 border-gray-400 p-3 font-mono text-gray-500 cursor-not-allowed"
-                                    />
-                                    <p className="text-xs mt-1 text-gray-500">* We only deliver to Port Elizabeth currently.</p>
-                                </div>
+                                {/* SUBURB STATUS MESSAGE */}
+                                {suburbMessage && (
+                                    <div className={`p-4 border-2 font-bold text-sm ${
+                                        suburbStatus === 'blocked' ? 'bg-red-100 border-red-500 text-red-700' :
+                                        'bg-orange-100 border-orange-500 text-orange-700'
+                                    }`}>
+                                        {suburbMessage}
+                                    </div>
+                                )}
 
                                 <div>
                                     <label className="block font-bold uppercase text-xs mb-1">Instructions (Optional)</label>
@@ -371,7 +412,7 @@ export default function CheckoutPage() {
                                         disabled={mainMethod === 'DELIVERY'}
                                         className="hidden"
                                     />
-                                    <span className="text-3xl mb-2">💵</span>
+                                    <span className="text-3xl mb-2">��</span>
                                     <span className="font-bold uppercase text-center text-sm">Cash on Drop</span>
                                     {mainMethod === 'DELIVERY' && <span className="text-[10px] text-red-600 font-bold mt-1 uppercase">Collection Only</span>}
                                 </label>
@@ -384,16 +425,12 @@ export default function CheckoutPage() {
                                     <div className="grid grid-cols-[100px_1fr] gap-1">
                                         <span className="text-gray-500">Bank:</span>
                                         <span className="font-bold">FNB/RMB</span>
-
                                         <span className="text-gray-500">Account:</span>
                                         <span className="font-bold">62762988346 (Cheque)</span>
-
                                         <span className="text-gray-500">Name:</span>
                                         <span className="font-bold">Gess L Du Preez</span>
-
                                         <span className="text-gray-500">Branch:</span>
                                         <span className="font-bold">250655</span>
-
                                         <span className="text-gray-500">Ref:</span>
                                         <span className="font-bold bg-[#facc15] px-1">Order # (Shown Next)</span>
                                     </div>
@@ -404,7 +441,7 @@ export default function CheckoutPage() {
 
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || (deliveryType === 'LOCAL' && suburbStatus === 'blocked')}
                             className="w-full py-5 bg-black text-[#facc15] text-3xl font-archivo uppercase hover:bg-[#d946ef] hover:text-white transition-colors border-4 border-transparent hover:border-black mt-8 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden"
                         >
                             <span className="relative z-10">{loading ? 'Processing...' : `Place Order & Pay R${finalTotal}`}</span>
@@ -455,7 +492,7 @@ export default function CheckoutPage() {
                     <div className="bg-white p-6 border-4 border-black font-mono text-sm">
                         <p className="font-bold uppercase underline mb-2">Secure Checkout</p>
                         <p>Your order is encrypted and processed securely. We do not store your banking details.
-                            We deliver <strong>Nationwide</strong> via PUDO Lockers and offer <strong>Local Delivery</strong> within Port Elizabeth.
+                            We deliver <strong>Nationwide</strong> via PUDO Lockers and offer <strong>Local Delivery</strong> within Port Elizabeth (30-60 min).
                         </p>
                     </div>
                 </div>

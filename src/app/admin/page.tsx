@@ -79,6 +79,17 @@ export default function AdminDashboard() {
       return (order.address as any)?.pudoBooking;
   };
 
+  const openInMaps = (address: any) => {
+      const query = encodeURIComponent(`${address.street}, ${address.suburb}, ${address.code}, Port Elizabeth`);
+      window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+  };
+
+  const copyAddress = (address: any) => {
+      const text = `${address.street}, ${address.suburb}, ${address.code}, Port Elizabeth`;
+      navigator.clipboard.writeText(text);
+      alert('📋 Address copied!');
+  };
+
   return (
     <div className="min-h-screen bg-neutral-900 text-white p-8 font-mono">
         <div className="flex justify-between items-center mb-8 border-b border-white/20 pb-4">
@@ -106,18 +117,23 @@ export default function AdminDashboard() {
             {orders.length > 0 && orders.map(order => {
                 const pudoBooking = getPudoBooking(order);
                 const isPudo = order.deliveryMethod === 'PUDO';
+                const isLocalDelivery = order.deliveryMethod === 'DELIVERY';
                 const canBookPudo = isPudo && order.status === 'PAID' && !pudoBooking;
                 const isBooking = bookingOrderId === order.id;
+                const isReviewRequired = (order as any).status === 'REVIEW_REQUIRED';
 
                 return (
-                <div key={order.id} className="bg-black border border-white/20 p-6 flex flex-col md:flex-row gap-6 hover:border-[#facc15] transition-colors relative group shadow-lg">
+                <div key={order.id} className={`bg-black border p-6 flex flex-col md:flex-row gap-6 hover:border-[#facc15] transition-colors relative group shadow-lg ${
+                    isReviewRequired ? 'border-orange-500 border-2' : 'border-white/20'
+                }`}>
                     {/* Status Badge */}
                     <div className={`absolute top-4 right-4 px-3 py-1 font-bold text-xs border ${
+                        isReviewRequired ? 'bg-orange-500 text-black border-orange-500 animate-pulse' :
                         order.status === 'PENDING' ? 'bg-orange-500 text-black border-orange-500' :
                         order.status === 'PAID' ? 'bg-blue-500 text-black border-blue-500' :
                         'bg-green-500 text-black border-green-500'
                     }`}>
-                        {order.status}
+                        {isReviewRequired ? '⚠️ NEEDS APPROVAL' : order.status}
                     </div>
 
                     <div className="flex-1">
@@ -138,12 +154,24 @@ export default function AdminDashboard() {
                     <div className="w-px bg-white/20 hidden md:block"></div>
 
                     <div className="flex-1 text-sm text-gray-400 bg-white/5 p-4 rounded">
-                        <div className="font-bold text-white mb-2 uppercase border-b border-white/20 pb-1">{order.deliveryMethod}</div>
-                        {order.deliveryMethod === 'DELIVERY' && order.address ? (
+                        <div className="font-bold text-white mb-2 uppercase border-b border-white/20 pb-1">
+                            {isLocalDelivery ? '🚗 LOCAL DELIVERY' : order.deliveryMethod}
+                        </div>
+                        
+                        {isLocalDelivery && order.address ? (
                             <>
-                                <div className="text-white">{order.address.street}</div>
+                                <div className="text-white font-bold">{order.address.street}</div>
                                 <div className="text-white">{order.address.suburb}, {order.address.code}</div>
                                 {order.address.instructions && <div className="mt-2 italic text-[#facc15]">"{order.address.instructions}"</div>}
+                                
+                                <div className="mt-3 flex gap-2">
+                                    <button onClick={() => openInMaps(order.address)} className="px-3 py-1 bg-blue-600 text-white text-xs font-bold uppercase hover:bg-blue-500">
+                                        📍 Open in Maps
+                                    </button>
+                                    <button onClick={() => copyAddress(order.address)} className="px-3 py-1 bg-gray-600 text-white text-xs font-bold uppercase hover:bg-gray-500">
+                                        📋 Copy
+                                    </button>
+                                </div>
                             </>
                         ) : order.deliveryMethod === 'PUDO' && order.address?.pudoTerminal ? (
                             <>
@@ -166,8 +194,20 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* ACTION BUTTONS */}
-                    <div className="flex flex-col gap-2 justify-center w-full md:w-40">
-                        {order.status === 'PENDING' && (
+                    <div className="flex flex-col gap-2 justify-center w-full md:w-44">
+                        {/* REVIEW REQUIRED APPROVAL BUTTONS */}
+                        {isReviewRequired && (
+                            <>
+                                <button onClick={() => updateStatus(order.id, 'PENDING')} className="bg-green-600 hover:bg-green-500 text-white py-3 font-bold uppercase text-xs tracking-wider">
+                                    ✅ Approve Delivery
+                                </button>
+                                <button onClick={() => alert('Please contact customer to offer PUDO instead')} className="bg-red-600 hover:bg-red-500 text-white py-3 font-bold uppercase text-xs tracking-wider">
+                                    ❌ Reject
+                                </button>
+                            </>
+                        )}
+                        
+                        {!isReviewRequired && order.status === 'PENDING' && (
                             <button onClick={() => updateStatus(order.id, 'PAID')} className="bg-blue-600 hover:bg-blue-500 text-white py-3 font-bold uppercase text-xs tracking-wider">
                                 Mark Paid
                             </button>
@@ -184,7 +224,7 @@ export default function AdminDashboard() {
                             </button>
                         )}
 
-                        {(order.status === 'PENDING' || order.status === 'PAID') && !canBookPudo && (
+                        {!isReviewRequired && (order.status === 'PENDING' || order.status === 'PAID') && !canBookPudo && (
                              <button onClick={() => updateStatus(order.id, 'DISPATCHED')} className="bg-green-600 hover:bg-green-500 text-white py-3 font-bold uppercase text-xs tracking-wider">
                                 Dispatch
                             </button>
