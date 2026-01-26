@@ -22,21 +22,21 @@ export default function ForgotPasswordPage() {
         setMessage("");
 
         try {
+            const redirectUrl = `${window.location.origin}/auth/callback`;
+            
             const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: `${window.location.origin}/auth/callback`,
+                redirectTo: redirectUrl,
             });
 
             if (error) {
-                // Handle different error formats
-                const errorMsg = error.message || JSON.stringify(error);
                 console.error("Reset password error:", error);
-                setError(errorMsg);
+                setError(error.message || "Failed to send reset email. Please try again.");
             } else {
                 setMessage("Check your email for the password reset link.");
             }
         } catch (err: any) {
             console.error("Network error:", err);
-            setError(err.message || "Network error. Please try again.");
+            setError("Network error. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -52,6 +52,9 @@ export default function ForgotPasswordPage() {
                         <div className="bg-green-100 border-2 border-green-500 text-green-800 p-4 mb-6 font-bold">
                             {message}
                         </div>
+                        <p className="text-sm text-gray-600 mb-4">
+                            Didn&apos;t receive it? Check your spam folder.
+                        </p>
                         <Link href="/login" className="block w-full py-4 bg-black text-[#facc15] font-bold uppercase hover:bg-white hover:text-black border-4 border-black transition-colors text-center">
                             Back to Login
                         </Link>
