@@ -6,10 +6,10 @@ import Link from 'next/link';
 
 export default function AdminDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [auditLogs, setAuditLogs] = useState<any[]>([]); // New State
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [bookingOrderId, setBookingOrderId] = useState<string | null>(null);
 
-  // Use 'no-store' to ensure we never get cached stale data
   const fetchOrders = async () => {
     setLoading(true);
     try {
@@ -25,7 +25,6 @@ export default function AdminDashboard() {
 
   const fetchLogs = async () => {
       try {
-          // We need a new internal API route for this to keep keys secure on server
           const res = await fetch('/api/admin/audit'); 
           const data = await res.json();
           setAuditLogs(data.logs || []);
@@ -40,20 +39,44 @@ export default function AdminDashboard() {
     const interval = setInterval(() => {
         fetchOrders();
         fetchLogs();
-    }, 10000); // Poll every 10s
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
   const updateStatus = async (orderId: string, status: Order['status']) => {
-      // Optimistic update
       setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
-      
       await fetch('/api/admin/orders', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ orderId, status })
       });
-      fetchOrders(); // Re-fetch to confirm
+      fetchOrders();
+  };
+
+  const bookPudo = async (orderId: string) => {
+      setBookingOrderId(orderId);
+      try {
+          const res = await fetch('/api/admin/orders/book-pudo', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ orderId })
+          });
+          const data = await res.json();
+          if (data.success) {
+              alert(`✅ PUDO Booked!\nWaybill: ${data.booking?.waybill_number}\nPIN: ${data.booking?.pin}`);
+              fetchOrders();
+          } else {
+              alert(`❌ Booking failed: ${data.error}`);
+          }
+      } catch (e: any) {
+          alert(`❌ Error: ${e.message}`);
+      } finally {
+          setBookingOrderId(null);
+      }
+  };
+
+  const getPudoBooking = (order: Order) => {
+      return (order.address as any)?.pudoBooking;
   };
 
   return (
@@ -80,7 +103,13 @@ export default function AdminDashboard() {
             
             {!loading && orders.length === 0 && <div className="text-center py-20 text-gray-500">No active orders.</div>}
 
-            {orders.length > 0 && orders.map(order => (
+            {orders.length > 0 && orders.map(order => {
+                const pudoBooking = getPudoBooking(order);
+                const isPudo = order.deliveryMethod === 'PUDO';
+                const canBookPudo = isPudo && order.status === 'PAID' && !pudoBooking;
+                const isBooking = bookingOrderId === order.id;
+
+                return (
                 <div key={order.id} className="bg-black border border-white/20 p-6 flex flex-col md:flex-row gap-6 hover:border-[#facc15] transition-colors relative group shadow-lg">
                     {/* Status Badge */}
                     <div className={`absolute top-4 right-4 px-3 py-1 font-bold text-xs border ${
@@ -116,6 +145,20 @@ export default function AdminDashboard() {
                                 <div className="text-white">{order.address.suburb}, {order.address.code}</div>
                                 {order.address.instructions && <div className="mt-2 italic text-[#facc15]">"{order.address.instructions}"</div>}
                             </>
+                        ) : order.deliveryMethod === 'PUDO' && order.address?.pudoTerminal ? (
+                            <>
+                                <div className="text-white">📦 {order.address.pudoTerminal.name}</div>
+                                {pudoBooking && (
+                                    <div className="mt-2 p-2 bg-green-900/50 border border-green-500 rounded">
+                                        <div className="text-green-400 font-bold text-xs">✅ BOOKED</div>
+                                        <div className="text-white">Waybill: {pudoBooking.waybill_number}</div>
+                                        <div className="text-[#facc15] font-bold">PIN: {pudoBooking.pin}</div>
+                                        {pudoBooking.tracking_url && (
+                                            <a href={pudoBooking.tracking_url} target="_blank" className="text-blue-400 underline text-xs">Track →</a>
+                                        )}
+                                    </div>
+                                )}
+                            </>
                         ) : (
                             <div className="text-[#facc15]">📦 Customer Collecting from Walmer</div>
                         )}
@@ -123,18 +166,31 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* ACTION BUTTONS */}
-                    <div className="flex flex-col gap-2 justify-center w-full md:w-32">
+                    <div className="flex flex-col gap-2 justify-center w-full md:w-40">
                         {order.status === 'PENDING' && (
                             <button onClick={() => updateStatus(order.id, 'PAID')} className="bg-blue-600 hover:bg-blue-500 text-white py-3 font-bold uppercase text-xs tracking-wider">
                                 Mark Paid
                             </button>
                         )}
-                        {(order.status === 'PENDING' || order.status === 'PAID') && (
+                        
+                        {/* BOOK PUDO BUTTON */}
+                        {canBookPudo && (
+                            <button 
+                                onClick={() => bookPudo(order.id)} 
+                                disabled={isBooking}
+                                className="bg-purple-600 hover:bg-purple-500 text-white py-3 font-bold uppercase text-xs tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isBooking ? '⏳ Booking...' : '📦 Book PUDO'}
+                            </button>
+                        )}
+
+                        {(order.status === 'PENDING' || order.status === 'PAID') && !canBookPudo && (
                              <button onClick={() => updateStatus(order.id, 'DISPATCHED')} className="bg-green-600 hover:bg-green-500 text-white py-3 font-bold uppercase text-xs tracking-wider">
                                 Dispatch
                             </button>
                         )}
-                         {order.status === 'DISPATCHED' && (
+                        
+                        {order.status === 'DISPATCHED' && (
                              <div className="text-center">
                                 <span className="text-green-500 font-bold uppercase text-xs border border-green-500 px-2 py-1 block mb-2">Completed</span>
                                 <button onClick={() => updateStatus(order.id, 'PENDING')} className="text-[10px] text-gray-600 underline hover:text-gray-400">Reset</button>
@@ -142,7 +198,7 @@ export default function AdminDashboard() {
                         )}
                     </div>
                 </div>
-            ))}
+            )})}
         </div>
 
         {/* AUDIT LOGS SECTION */}

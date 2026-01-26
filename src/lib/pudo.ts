@@ -1,5 +1,5 @@
 import { Order } from './db';
-import { supabase } from './supabase';
+import { supabaseAdmin } from './supabase';
 
 const PUDO_ENV = process.env.PUDO_ENV || 'sandbox';
 // Use hyphen for production as verified by debug script
@@ -65,7 +65,7 @@ export const PudoService = {
     if (!API_KEY) throw new Error("PUDO_API_KEY is missing");
 
     // Fetch Member for Contact Details
-    const { data: member } = await supabase
+    const { data: member } = await supabaseAdmin
         .from('members')
         .select('full_name, email, phone')
         .eq('id', order.memberId)
