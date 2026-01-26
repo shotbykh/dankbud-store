@@ -10,8 +10,9 @@ import { checkDeliveryArea, getDeliveryAreaMessage, type DeliveryAreaStatus } fr
 // RATES
 const RATES = {
     COLLECTION: 0,
-    PUDO_LOCKER: 60,
-    LOCAL_DELIVERY: 60 // Base rate, can be dynamic later
+    PUDO_LOCKER: 60,      // L2L (Locker to Locker)
+    PUDO_DOOR: 100,       // L2D (Locker to Door)
+    LOCAL_DELIVERY: 0     // Dynamic: Uber quote + R10
 };
 
 // Types
