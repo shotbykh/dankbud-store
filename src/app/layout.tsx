@@ -6,6 +6,7 @@ import CartDrawer from "@/components/cart/CartDrawer";
 import Footer from "@/components/ui/Footer";
 import ComplianceBar from "@/components/ui/ComplianceBar";
 import { Analytics } from "@vercel/analytics/react";
+import AuthHandler from "@/components/auth/AuthHandler";
 
 const syne = Syne({
   variable: "--font-syne",
@@ -36,6 +37,7 @@ export default function RootLayout({
         className={`${syne.variable} ${archivoBlack.variable} font-sans antialiased min-h-screen border-[5px] border-black bg-[#facc15]`}
       >
         <Providers>
+            <AuthHandler />
             <CartDrawer />
             {children}
             <Footer />

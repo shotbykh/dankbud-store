@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
 
             if (error) {
                 // Handle different error formats
-                const errorMsg = error.message || error.msg || JSON.stringify(error);
+                const errorMsg = error.message || JSON.stringify(error);
                 console.error("Reset password error:", error);
                 setError(errorMsg);
             } else {
