@@ -15,7 +15,8 @@ export default function SignupPage() {
         password: '',
         fullName: '',
         idNumber: '',
-        phone: ''
+        phone: '',
+        referralCode: ''
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,6 +144,19 @@ export default function SignupPage() {
                             minLength={6}
                             className="w-full bg-gray-100 border-2 border-black p-3 font-mono focus:bg-[#facc15] outline-none"
                             placeholder="Min 6 characters"
+                        />
+                    </div>
+
+                    <div className="pt-2 bg-gradient-to-r from-purple-100 to-pink-100 p-4 border-2 border-dashed border-purple-400">
+                        <label className="block font-bold uppercase text-xs mb-1 text-purple-700">🎁 Got a Referral Code? Get R50 Credit!</label>
+                        <input
+                            name="referralCode"
+                            value={formData.referralCode}
+                            onChange={handleChange}
+                            type="text"
+                            maxLength={6}
+                            className="w-full bg-white border-2 border-purple-400 p-3 font-mono focus:bg-purple-50 outline-none uppercase text-center tracking-widest"
+                            placeholder="XXXXXX"
                         />
                     </div>
 
