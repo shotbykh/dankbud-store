@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getOrders, Order } from '@/lib/db';
 import { supabaseAdmin } from '@/lib/supabase';
+import { verifyAdminRequest } from '@/lib/admin-auth';
 
 // Force dynamic to prevent caching
 export const dynamic = 'force-dynamic';
@@ -19,7 +20,11 @@ async function updateOrderStatus(orderId: string, status: Order['status']) {
 
 export async function GET() {
     try {
-        // TODO: Add proper admin auth check in production
+        const auth = await verifyAdminRequest();
+        if (!auth.valid) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const orders = await getOrders();
         return NextResponse.json({ orders: orders.reverse() });
     } catch (e) {
@@ -30,7 +35,11 @@ export async function GET() {
 
 export async function PUT(req: Request) {
     try {
-        // TODO: Add proper admin auth check in production
+        const auth = await verifyAdminRequest();
+        if (!auth.valid) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const { orderId, status } = await req.json();
         await updateOrderStatus(orderId, status);
         return NextResponse.json({ success: true });

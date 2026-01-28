@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getAuditLogs } from '@/lib/db';
-import { cookies } from 'next/headers';
+import { verifyAdminRequest } from '@/lib/admin-auth';
+
+// Force dynamic to prevent caching
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // 1. Security Check: Ensure requester is an Admin/Staff
-    const cookieStore = await cookies();
-    const adminSession = cookieStore.get('admin_session');
-
-    if (!adminSession) {
+    const auth = await verifyAdminRequest();
+    if (!auth.valid) {
         return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 
