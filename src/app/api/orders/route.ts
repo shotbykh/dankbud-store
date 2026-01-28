@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { saveOrder, Order } from '@/lib/db';
 import { cookies } from 'next/headers';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
 export async function POST(req: Request) {
   try {
@@ -9,19 +10,27 @@ export async function POST(req: Request) {
     // DEBUG LOGGING
     console.log("Processing Order...", data?.deliveryMethod);
     
-    // Validate session: Check COOKIE first, then HEADER fallback
+    // 2. Validate Session with Supabase Auth (Strict)
     const cookieStore = await cookies();
-    const session = cookieStore.get('dankbud_session');
-    const headerAuth = req.headers.get('x-member-id');
-    
-    console.log("Auth Debug:", { cookie: session?.value, header: headerAuth });
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) { return cookieStore.get(name)?.value },
+                set(name: string, value: string, options: CookieOptions) { cookieStore.set({ name, value, ...options }) },
+                remove(name: string, options: CookieOptions) { cookieStore.set({ name, value: '', ...options }) },
+            },
+        }
+    );
 
-    // Auth is valid if either cookie or header is present
-    const memberId = session?.value || headerAuth;
-    
-    if (!memberId) {
-        return NextResponse.json({ error: 'Unauthorized: Session missing' }, { status: 401 });
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+        return NextResponse.json({ error: 'Unauthorized: Valid login required' }, { status: 401 });
     }
+
+    const memberId = user.id;
 
     // Extract all fields
     const { items, total, address, paymentMethod, deliveryMethod, pudoTerminal } = data;

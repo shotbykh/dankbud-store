@@ -150,6 +150,20 @@ export default function ApplyPage() {
                         />
                         {errors.phone && <p className="text-red-600 font-bold uppercase text-sm">{errors.phone.message}</p>}
                     </div>
+
+                    {/* REFERRAL CODE */}
+                    <div className="space-y-2 bg-black/5 p-4 border-2 border-dashed border-black">
+                        <label className="block text-xl font-black uppercase flex items-center gap-2">
+                             Referral Code <span className="text-xs bg-[#ec4899] text-white px-2 py-1 rounded-full animate-pulse">GET R50</span>
+                        </label>
+                        <input 
+                            {...register("referralCode")}
+                            className="w-full bg-white border-2 border-black p-4 text-2xl font-bold placeholder-black/30 focus:outline-none focus:bg-[#facc15] transition-colors text-center uppercase tracking-[0.2em]"
+                            placeholder="CODE123"
+                            maxLength={10}
+                        />
+                         <p className="text-xs font-bold uppercase text-gray-500 text-center">Optional: Enter friend's code for credit</p>
+                    </div>
                     
                     {/* ID TYPE Selection */}
                     <div className="space-y-4">
