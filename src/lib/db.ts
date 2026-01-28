@@ -63,7 +63,7 @@ export async function saveMember(member: Member) {
 
   const passwordToSave = member.password ? await hashPassword(member.password) : undefined;
 
-  const { error } = await supabase.from('members').insert({
+  const { error } = await supabaseAdmin.from('members').insert({
       id: member.id,
       full_name: member.fullName,
       email: member.email,
@@ -86,7 +86,7 @@ export async function saveOrder(order: Order) {
       ? { ...order.address, pudoTerminal: order.address.pudoTerminal } 
       : order.address;
 
-  const { error } = await supabase.from('orders').insert({
+  const { error } = await supabaseAdmin.from('orders').insert({
       id: order.id,
       member_id: order.memberId,
       items: order.items,
@@ -123,7 +123,7 @@ export async function getOrders(): Promise<Order[]> {
 }
 
 export async function updateMemberStatus(id: string, status: Member['status']) {
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
         .from('members')
         .update({ status })
         .eq('id', id);
@@ -133,7 +133,7 @@ export async function updateMemberStatus(id: string, status: Member['status']) {
 }
 
 export async function updateOrderStatus(id: string, status: Order['status'], paymentStatus?: string) {
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
         .from('orders')
         .update({ status })
         .eq('id', id);
@@ -143,7 +143,7 @@ export async function updateOrderStatus(id: string, status: Order['status'], pay
 }
 
 export async function logAdminAction(adminId: string, action: string, details?: any) {
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
         .from('audit_logs')
         .insert({
             admin_id: adminId,
